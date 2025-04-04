@@ -24,8 +24,9 @@
             margin: 0;
             min-height: 100vh;
             max-height: 100vh;
-            overflow-y: auto;
+            overflow: hidden;
             padding: 10px;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -36,18 +37,19 @@
             max-width: 800px;
             width: 100%;
             box-sizing: border-box;
-            height: calc(100vh - 20px);
-            overflow-y: auto;
-            padding-right: 5px; /* for scrollbar */
+            height: 80vh;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
         }
         
         h1 {
             color: var(--primary-color);
             text-align: center;
-            margin: 10px 0;
+            margin: 5px 0;
             padding: 0;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            font-size: 2.5rem;
+            font-size: 2rem;
         }
         
         h2 {
@@ -59,12 +61,14 @@
         .game-setup, .game-area, .results-area {
             background-color: var(--card-color);
             border-radius: 20px;
-            padding: 20px;
+            padding: 15px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             width: 100%;
             box-sizing: border-box;
             border: 3px solid #bbdefb;
+            max-height: calc(80vh - 60px);
+            overflow-y: auto;
         }
         
         .mode-selection {
@@ -483,12 +487,12 @@
             
             .container {
                 max-width: 95vw;
-                height: calc(100vh - 10px);
+                height: 90vh;
             }
             
             h1 {
-                font-size: 1.5rem;
-                margin: 5px 0;
+                font-size: 1.3rem;
+                margin: 3px 0;
             }
             
             h2 {
@@ -504,6 +508,7 @@
                 padding: 10px;
                 margin-bottom: 8px;
                 border-width: 2px;
+                max-height: calc(90vh - 50px);
             }
             
             .virtual-keyboard {
