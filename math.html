@@ -737,6 +737,7 @@
                 console.error('Error loading saved numbers:', e);
                 // Reset in case of error
                 selectedNumbers = [];
+                startBtn.disabled = true;
             }
         }
         
@@ -870,8 +871,11 @@
                 // Reset character face
                 characterFace.className = 'character thinking';
                 
-                // Focus on input field (will be ignored on mobile due to readonly)
-                answerInput.focus();
+                // Focus on input field only if on desktop
+                if (window.innerWidth > 768 && 
+                    !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    answerInput.focus();
+                }
                 
                 updateStats();
             } else {
@@ -1088,12 +1092,19 @@
             gameAreaDiv.style.display = 'none';
             resultsAreaDiv.style.display = 'none';
             
-            // Clear selection
+            // Instead of clearing the selection, we'll preserve the user's choices
+            // by loading them from localStorage
+            
+            // First clear the visual selection
             document.querySelectorAll('.number-btn.selected').forEach(btn => {
                 btn.classList.remove('selected');
             });
-            selectedNumbers = [];
-            startBtn.disabled = true;
+            
+            // Then load the saved number selections
+            loadSelectedNumbers();
+            
+            // Also load saved multiplication limit
+            loadMultiplicationLimit();
         }
         
         // Handle enter key in the answer input
@@ -1118,9 +1129,6 @@
             if (value === 'clear') {
                 currentValue = '';
             } else if (value === 'backspace') {
-                currentValue = currentValue.slice(0, -1);
-            } else {
-                // Only append if it's a reasonable length
                 if (currentValue.length < 4) {
                     currentValue += value;
                 }
