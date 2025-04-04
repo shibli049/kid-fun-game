@@ -655,6 +655,10 @@
         let mistakeSuccessBonus = {};
         let multiplicationLimit = 10; // Default to 10
         
+        // Local storage keys
+        const STORAGE_KEY_NUMBERS = 'multiplicationGame_selectedNumbers';
+        const STORAGE_KEY_LIMIT = 'multiplicationGame_multiplicationLimit';
+        
         // Encouraging messages
         const correctMessages = [
             "Awesome! 🎉", 
@@ -683,6 +687,9 @@
                 btn.addEventListener('click', () => toggleNumberSelection(btn, i));
                 numberSelectionDiv.appendChild(btn);
             }
+            
+            // Load selected numbers from localStorage
+            loadSelectedNumbers();
         }
         
         // Toggle number selection
@@ -697,6 +704,65 @@
             
             // Enable start button if at least one number is selected
             startBtn.disabled = selectedNumbers.length === 0;
+            
+            // Save selected numbers to localStorage
+            saveSelectedNumbers();
+        }
+        
+        // Save selected numbers to localStorage
+        function saveSelectedNumbers() {
+            localStorage.setItem(STORAGE_KEY_NUMBERS, JSON.stringify(selectedNumbers));
+        }
+        
+        // Load selected numbers from localStorage
+        function loadSelectedNumbers() {
+            try {
+                const savedNumbers = localStorage.getItem(STORAGE_KEY_NUMBERS);
+                if (savedNumbers) {
+                    selectedNumbers = JSON.parse(savedNumbers);
+                    
+                    // Update UI to reflect saved selections
+                    const numberButtons = document.querySelectorAll('.number-btn');
+                    numberButtons.forEach(btn => {
+                        const num = parseInt(btn.textContent);
+                        if (selectedNumbers.includes(num)) {
+                            btn.classList.add('selected');
+                        }
+                    });
+                    
+                    // Enable start button if numbers are selected
+                    startBtn.disabled = selectedNumbers.length === 0;
+                }
+            } catch (e) {
+                console.error('Error loading saved numbers:', e);
+                // Reset in case of error
+                selectedNumbers = [];
+            }
+        }
+        
+        // Save multiplication limit to localStorage
+        function saveMultiplicationLimit() {
+            localStorage.setItem(STORAGE_KEY_LIMIT, multiplicationLimit.toString());
+        }
+        
+        // Load multiplication limit from localStorage
+        function loadMultiplicationLimit() {
+            try {
+                const savedLimit = localStorage.getItem(STORAGE_KEY_LIMIT);
+                if (savedLimit) {
+                    multiplicationLimit = parseInt(savedLimit);
+                    
+                    // Update radio button selection
+                    const radioOption = document.getElementById(`multiplyUpTo${multiplicationLimit}`);
+                    if (radioOption) {
+                        radioOption.checked = true;
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading saved multiplication limit:', e);
+                // Reset to default in case of error
+                multiplicationLimit = 10;
+            }
         }
         
         // Generate questions based on selected numbers
@@ -741,6 +807,9 @@
             // Get the selected multiplication limit
             const selectedMultiplierOption = document.querySelector('input[name="multiplyUpTo"]:checked');
             multiplicationLimit = parseInt(selectedMultiplierOption.value);
+            
+            // Save multiplication limit to localStorage
+            saveMultiplicationLimit();
             
             practicingMistakes = false;
             questions = generateQuestions();
@@ -1096,9 +1165,20 @@
         
         // Initialize game
         function init() {
+            // Load multiplication limit before initializing buttons
+            loadMultiplicationLimit();
+            
             initNumberButtons();
             setupVirtualKeyboard();
             checkMobileDevice();
+            
+            // Set up event listeners for multiplication limit radio buttons
+            document.querySelectorAll('input[name="multiplyUpTo"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    multiplicationLimit = parseInt(this.value);
+                    saveMultiplicationLimit();
+                });
+            });
             
             // Event listeners
             startBtn.addEventListener('click', startGame);
