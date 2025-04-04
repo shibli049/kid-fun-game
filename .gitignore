@@ -1,0 +1,8 @@
+# Vim swap files
+*.swp
+
+# Output files
+*.out
+
+# Math HTML files
+math_*.html

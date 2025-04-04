@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplication Game for Kids</title>
+    <style>
+        :root {
+            --primary-color: #6a4ca2;
+            --secondary-color: #ff6b6b;
+            --background-color: #e0f7fa;
+            --correct-color: #4caf50;
+            --wrong-color: #ff5252;
+            --button-color: #42a5f5;
+            --card-color: #ffffff;
+            --text-color: #3a3a3a;
+        }
+        
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Bubblegum Sans', cursive;
+            background-color: var(--background-color);
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%234fc3f7' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 2.5rem;
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .game-setup, .game-area, .results-area {
+            background-color: var(--card-color);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 3px solid #bbdefb;
+        }
+        
+        .number-selection {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .number-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background-color: #e3f2fd;
+            color: var(--primary-color);
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .number-btn:hover {
+            transform: scale(1.1);
+            background-color: #bbdefb;
+        }
+        
+        .number-btn.selected {
+            background-color: var(--secondary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .start-btn, .answer-btn, .next-btn, .restart-btn, .practice-mistakes-btn {
+            background-color: var(--button-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .start-btn:hover, .answer-btn:hover, .next-btn:hover, .restart-btn:hover, .practice-mistakes-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .start-btn:active, .answer-btn:active, .next-btn:active, .restart-btn:active, .practice-mistakes-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .restart-btn {
+            background-color: #26c6da;
+        }
+        
+        .question-display {
+            font-size: 48px;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--primary-color);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+            animation: bounce 0.5s ease;
+        }
+        
+        @keyframes bounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .answer-input {
+            width: 100%;
+            max-width: 200px;
+            padding: 12px;
+            font-size: 24px;
+            text-align: center;
+            border: 3px solid var(--primary-color);
+            border-radius: 10px;
+            margin: 0 auto;
+            display: block;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 10px rgba(106, 76, 162, 0.3);
+        }
+        
+        .feedback {
+            font-size: 24px;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+            min-height: 30px;
+            transition: all 0.3s;
+        }
+        
+        .correct {
+            color: var(--correct-color);
+            animation: pop 0.5s ease;
+        }
+        
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .wrong {
+            color: var(--wrong-color);
+        }
+        
+        .second-chance {
+            color: #ff9800;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+            background-color: #e3f2fd;
+            padding: 10px 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 5px;
+            min-width: 100px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .mistakes-list {
+            margin-top: 20px;
+        }
+        
+        .mistake-item {
+            background-color: #fff8e1;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            text-align: center;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #ffa726;
+        }
+        
+        .character {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23ffca28'/%3E%3Ccircle cx='35' cy='40' r='5' fill='%233a3a3a'/%3E%3Ccircle cx='65' cy='40' r='5' fill='%233a3a3a'/%3E%3Cpath d='M35 70 Q50 80 65 70' stroke='%233a3a3a' stroke-width='3' fill='none'/%3E%3C/svg%3E");
+            background-size: contain;
+            transition: transform 0.3s;
+        }
+        
+        .character.happy {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23ffca28'/%3E%3Ccircle cx='35' cy='40' r='5' fill='%233a3a3a'/%3E%3Ccircle cx='65' cy='40' r='5' fill='%233a3a3a'/%3E%3Cpath d='M35 65 Q50 80 65 65' stroke='%233a3a3a' stroke-width='3' fill='none'/%3E%3C/svg%3E");
+        }
+        
+        .character.sad {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23ffca28'/%3E%3Ccircle cx='35' cy='40' r='5' fill='%233a3a3a'/%3E%3Ccircle cx='65' cy='40' r='5' fill='%233a3a3a'/%3E%3Cpath d='M35 75 Q50 65 65 75' stroke='%233a3a3a' stroke-width='3' fill='none'/%3E%3C/svg%3E");
+        }
+        
+        .character.thinking {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23ffca28'/%3E%3Ccircle cx='35' cy='40' r='5' fill='%233a3a3a'/%3E%3Ccircle cx='65' cy='40' r='5' fill='%233a3a3a'/%3E%3Cpath d='M40 70 L60 70' stroke='%233a3a3a' stroke-width='3' fill='none'/%3E%3Ccircle cx='75' cy='30' r='10' fill='%23ffffff' stroke='%233a3a3a' stroke-width='2'/%3E%3Ctext x='75' y='33' text-anchor='middle' font-size='15' fill='%233a3a3a'%3E%3F%3C/text%3E%3C/svg%3E");
+        }
+        
+        #scoreAnimation {
+            position: fixed;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4caf50;
+            opacity: 0;
+            transition: all 0.5s;
+            pointer-events: none;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f44336;
+            opacity: 0;
+        }
+        
+        .virtual-keyboard {
+            display: none; /* Hidden by default, shown on mobile */
+            flex-direction: column;
+            margin: 12px auto;
+            max-width: 210px;
+        }
+        
+        .key-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .key {
+            width: 60px;
+            height: 50px;
+            border-radius: 10px;
+            background-color: #f0f0f0;
+            border: none;
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+        
+        .key:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .key-backspace {
+            background-color: #ffcdd2;
+        }
+        
+        .key-clear {
+            background-color: #ffecb3;
+        }
+        
+        /* Practice mode label */
+        .practice-label {
+            background-color: #ff9800;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            margin: 0 auto 10px;
+            width: fit-content;
+            text-align: center;
+        }
+        
+        @media (max-width: 600px) {
+            /* Make title smaller on mobile */
+            h1 {
+                font-size: 1.8rem;
+                margin-top: 5px;
+                margin-bottom: 10px;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+            }
+            
+            h3 {
+                font-size: 1.1rem;
+            }
+            
+            /* Optimize container padding */
+            .container {
+                max-width: 95vw;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            /* More compact cards */
+            .game-setup, .game-area, .results-area {
+                padding: 12px;
+                margin-bottom: 10px;
+                border-width: 2px;
+            }
+            
+            /* Calculator-style keyboard */
+            .virtual-keyboard {
+                display: flex;
+                max-width: 210px;
+                margin: 10px auto;
+            }
+            
+            .key-row {
+                margin-bottom: 8px;
+            }
+            
+            /* More compact stats */
+            .stats {
+                margin: 8px 0;
+                gap: 5px;
+            }
+            
+            .stat-item {
+                min-width: 50px;
+                padding: 4px 6px;
+                margin: 2px;
+                border-radius: 10px;
+            }
+            
+            .stat-value {
+                font-size: 16px;
+            }
+            
+            .stat-label {
+                font-size: 10px;
+            }
+            
+            /* Smaller question and elements */
+            .question-display {
+                font-size: 28px;
+                margin: 10px 0;
+            }
+            
+            .character {
+                width: 45px;
+                height: 45px;
+                margin-bottom: 5px;
+            }
+            
+            .number-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+            
+            .feedback {
+                font-size: 18px;
+                margin: 8px 0;
+                min-height: 20px;
+            }
+            
+            /* Smaller buttons */
+            .start-btn, .answer-btn, .next-btn, .restart-btn {
+                font-size: 26px;
+                padding: 8px 16px;
+                margin: 6px 3px;
+                border-radius: 20px;
+            }
+            
+            /* Smaller input */
+            .answer-input {
+                max-width: 150px;
+                padding: 8px;
+                font-size: 20px;
+                border-width: 2px;
+            }
+            
+            /* Smaller practice mode label */
+            .practice-label {
+                padding: 3px 8px;
+                font-size: 12px;
+                margin-bottom: 5px;
+            }
+            
+            /* More compact mistakes list */
+            .mistake-item {
+                padding: 8px;
+                margin-bottom: 5px;
+                font-size: 14px;
+                border-left-width: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Multiplication Master</h1>
+        
+        <div class="game-setup" id="setup">
+            <div class="character thinking"></div>
+            <h2>Choose numbers to practice:</h2>
+            <div class="number-selection">
+                <!-- Buttons 1-12 will be added here by JavaScript -->
+            </div>
+            <div style="text-align: center;">
+                <button class="start-btn" id="startBtn" disabled>Start Game</button>
+            </div>
+        </div>
+        
+        <div class="game-area" id="gameArea" style="display: none;">
+            <div id="practiceLabel" class="practice-label" style="display: none;">PRACTICE MODE</div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="scoreCount">0</div>
+                    <div class="stat-label">Points</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="correctCount">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="wrongCount">0</div>
+                    <div class="stat-label">Wrong</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="questionCount">0/0</div>
+                    <div class="stat-label">Question</div>
+                </div>
+            </div>
+            
+            <div class="character" id="characterFace"></div>
+            <div class="question-display" id="question"></div>
+            
+            <input type="text" class="answer-input" id="answerInput" placeholder="Your answer" readonly>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="virtual-keyboard" id="virtualKeyboard">
+                <div class="key-row">
+                    <button class="key" data-value="7">7</button>
+                    <button class="key" data-value="8">8</button>
+                    <button class="key" data-value="9">9</button>
+                </div>
+                <div class="key-row">
+                    <button class="key" data-value="4">4</button>
+                    <button class="key" data-value="5">5</button>
+                    <button class="key" data-value="6">6</button>
+                </div>
+                <div class="key-row">
+                    <button class="key" data-value="1">1</button>
+                    <button class="key" data-value="2">2</button>
+                    <button class="key" data-value="3">3</button>
+                </div>
+                <div class="key-row">
+                    <button class="key key-clear" data-value="clear">C</button>
+                    <button class="key" data-value="0">0</button>
+                    <button class="key key-backspace" data-value="backspace">⌫</button>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button class="answer-btn" id="answerBtn">Check Answer</button>
+                <button class="next-btn" id="nextBtn" style="display: none;">Next Question</button>
+            </div>
+        </div>
+        
+        <div class="results-area" id="resultsArea" style="display: none;">
+            <div class="character happy"></div>
+            <h2>Great job!</h2>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="finalScore">0</div>
+                    <div class="stat-label">Points</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalCorrect">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalWrong">0</div>
+                    <div class="stat-label">Wrong</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="scorePercent">0%</div>
+                    <div class="stat-label">Score</div>
+                </div>
+            </div>
+            
+            <div id="mistakesSection" style="display: none;">
+                <h3>Your Challenges:</h3>
+                <div class="mistakes-list" id="mistakesList">
+                    <!-- Mistakes will be added here -->
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button class="restart-btn" id="restartBtn">Start New Game</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="scoreAnimation">+3</div>
+    
+    <script>
+        // DOM elements
+        const setupDiv = document.getElementById('setup');
+        const gameAreaDiv = document.getElementById('gameArea');
+        const resultsAreaDiv = document.getElementById('resultsArea');
+        const numberSelectionDiv = document.querySelector('.number-selection');
+        const startBtn = document.getElementById('startBtn');
+        const questionDisplay = document.getElementById('question');
+        const answerInput = document.getElementById('answerInput');
+        const answerBtn = document.getElementById('answerBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const feedbackDiv = document.getElementById('feedback');
+        const scoreCountSpan = document.getElementById('scoreCount');
+        const correctCountSpan = document.getElementById('correctCount');
+        const wrongCountSpan = document.getElementById('wrongCount');
+        const questionCountSpan = document.getElementById('questionCount');
+        const finalScoreSpan = document.getElementById('finalScore');
+        const finalCorrectSpan = document.getElementById('finalCorrect');
+        const finalWrongSpan = document.getElementById('finalWrong');
+        const scorePercentSpan = document.getElementById('scorePercent');
+        const mistakesSection = document.getElementById('mistakesSection');
+        const mistakesList = document.getElementById('mistakesList');
+        const restartBtn = document.getElementById('restartBtn');
+        const characterFace = document.getElementById('characterFace');
+        const scoreAnimation = document.getElementById('scoreAnimation');
+        const virtualKeyboard = document.getElementById('virtualKeyboard');
+        const practiceLabel = document.getElementById('practiceLabel');
+        
+        // Game state variables
+        let selectedNumbers = [];
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let wrongAnswers = 0;
+        let mistakes = [];
+        let totalScore = 0;
+        let practicingMistakes = false;
+        let isSecondChance = false;
+        let mistakeSuccessBonus = {};
+        
+        // Encouraging messages
+        const correctMessages = [
+            "Awesome! 🎉", 
+            "Great job! 🌟", 
+            "You got it! 👍", 
+            "Perfect! 💪", 
+            "Fantastic! 🏆",
+            "Brilliant! ✨",
+            "Amazing! 🚀"
+        ];
+        
+        const secondChanceMessages = [
+            "Try once more! 🔄",
+            "Almost there! Try again ⚡",
+            "One more try! 💭",
+            "You can do it! Try again 🌈",
+            "Let's try one more time! 🧩"
+        ];
+        
+        // Initialize number selection buttons
+        function initNumberButtons() {
+            for (let i = 1; i <= 20; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'number-btn';
+                btn.textContent = i;
+                btn.addEventListener('click', () => toggleNumberSelection(btn, i));
+                numberSelectionDiv.appendChild(btn);
+            }
+        }
+        
+        // Toggle number selection
+        function toggleNumberSelection(button, number) {
+            button.classList.toggle('selected');
+            
+            if (button.classList.contains('selected')) {
+                selectedNumbers.push(number);
+            } else {
+                selectedNumbers = selectedNumbers.filter(num => num !== number);
+            }
+            
+            // Enable start button if at least one number is selected
+            startBtn.disabled = selectedNumbers.length === 0;
+        }
+        
+        // Generate questions based on selected numbers
+        function generateQuestions() {
+            const allQuestions = [];
+            
+            for (const num of selectedNumbers) {
+                for (let i = 2; i <= 12; i++) {
+                    allQuestions.push({
+                        factor1: num,
+                        factor2: i,
+                        product: num * i
+                    });
+                }
+            }
+            
+            // Shuffle questions
+            const shuffled = shuffleArray(allQuestions);
+            
+            // Limit to 15-20 questions (randomly choose between 15 and 20)
+            const questionCount = Math.floor(Math.random() * 6) + 15; // Random number between 15 and 20
+            return shuffled.slice(0, Math.min(questionCount, shuffled.length));
+        }
+        
+        // Shuffle array (Fisher-Yates algorithm)
+        function shuffleArray(array) {
+            const newArray = [...array]; // Create a copy to avoid modifying the original
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+        
+        // Get random message from array
+        function getRandomMessage(messages) {
+            return messages[Math.floor(Math.random() * messages.length)];
+        }
+        
+        // Start the game
+        function startGame() {
+            practicingMistakes = false;
+            questions = generateQuestions();
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            wrongAnswers = 0;
+            totalScore = 0;
+            mistakes = [];
+            mistakeSuccessBonus = {};
+            
+            setupDiv.style.display = 'none';
+            gameAreaDiv.style.display = 'block';
+            resultsAreaDiv.style.display = 'none';
+            practiceLabel.style.display = 'none';
+            
+            updateStats();
+            displayCurrentQuestion();
+        }
+        
+        // Start practicing mistakes
+        function startPracticingMistakes() {
+            practicingMistakes = true;
+            
+            // Show transition message
+            feedbackDiv.textContent = "Now let's practice the challenges!";
+            feedbackDiv.className = 'feedback';
+            
+            // Set up practice session with the current mistakes
+            questions = [...mistakes];
+            // Reset mistakes array to track new mistakes during practice
+            mistakes = [];
+            currentQuestionIndex = 0;
+            
+            // Show practice mode label
+            practiceLabel.style.display = 'block';
+            
+            // Start practice session after a short delay
+            setTimeout(() => {
+                updateStats();
+                displayCurrentQuestion();
+            }, 1500);
+        }
+        
+        // Display current question
+        function displayCurrentQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const question = questions[currentQuestionIndex];
+                questionDisplay.textContent = `${question.factor1} × ${question.factor2} = ?`;
+                answerInput.value = '';
+                feedbackDiv.textContent = '';
+                feedbackDiv.className = 'feedback';
+                
+                isSecondChance = false;
+                
+                answerBtn.style.display = 'inline-block';
+                nextBtn.style.display = 'none';
+                
+                // Reset character face
+                characterFace.className = 'character thinking';
+                
+                // Focus on input field (will be ignored on mobile due to readonly)
+                answerInput.focus();
+                
+                updateStats();
+            } else {
+                showResults();
+            }
+        }
+        
+        // Show point animation
+        function showPointAnimation(points) {
+            scoreAnimation.textContent = points > 0 ? `+${points}` : points;
+            scoreAnimation.style.color = points > 0 ? '#4caf50' : '#f44336';
+            
+            // Position near the score counter
+            const scoreRect = scoreCountSpan.getBoundingClientRect();
+            scoreAnimation.style.top = `${scoreRect.top - 30}px`;
+            scoreAnimation.style.left = `${scoreRect.left + scoreRect.width / 2}px`;
+            
+            // Show and animate
+            scoreAnimation.style.opacity = '1';
+            scoreAnimation.style.transform = 'translateY(-20px)';
+            
+            // Hide after animation
+            setTimeout(() => {
+                scoreAnimation.style.opacity = '0';
+                scoreAnimation.style.transform = 'translateY(-40px)';
+            }, 1000);
+        }
+        
+        // Check answer
+        function checkAnswer() {
+            const userAnswer = parseInt(answerInput.value);
+            
+            if (isNaN(userAnswer)) {
+                feedbackDiv.textContent = 'Please enter a number!';
+                feedbackDiv.className = 'feedback wrong';
+                return;
+            }
+            
+            const currentQuestion = questions[currentQuestionIndex];
+            const correctAnswer = currentQuestion.product;
+            const questionKey = `${currentQuestion.factor1}x${currentQuestion.factor2}`;
+            
+            if (userAnswer === correctAnswer) {
+                // Correct answer
+                let points = 0;
+                
+                if (!isSecondChance) {
+                    // First try
+                    points = 3;
+                    feedbackDiv.textContent = getRandomMessage(correctMessages);
+                    feedbackDiv.className = 'feedback correct';
+                    correctAnswers++;
+                    
+                    // Add bonus point if this was a mistake they got right on first try in practice mode
+                    if (practicingMistakes && !mistakeSuccessBonus[questionKey]) {
+                        points += 1;
+                        mistakeSuccessBonus[questionKey] = true;
+                        feedbackDiv.textContent += " +1 bonus point!";
+                    }
+                } else {
+                    // Second try
+                    points = 1;
+                    feedbackDiv.textContent = "Correct on second try!";
+                    feedbackDiv.className = 'feedback correct';
+                    correctAnswers++;
+                    
+                    // Add to mistakes even though they got it right on second try
+                    // (if not already in practice mode)
+                    if (!practicingMistakes) {
+                        // Check if this exact question is already in the mistakes array
+                        const alreadyInMistakes = mistakes.some(
+                            m => m.factor1 === currentQuestion.factor1 && m.factor2 === currentQuestion.factor2
+                        );
+                        
+                        if (!alreadyInMistakes) {
+                            mistakes.push(currentQuestion);
+                        }
+                    }
+                }
+                
+                totalScore += points;
+                showPointAnimation(points);
+                characterFace.className = 'character happy';
+                
+                // Show confetti for correct answers
+                if (points >= 3) {
+                    createConfetti();
+                }
+            } else if (!isSecondChance) {
+                // First wrong attempt - give a second chance
+                isSecondChance = true;
+                feedbackDiv.textContent = getRandomMessage(secondChanceMessages);
+                feedbackDiv.className = 'feedback second-chance';
+                characterFace.className = 'character thinking';
+                
+                // Already mark as a mistake to practice later
+                if (!practicingMistakes) {
+                    // Check if this exact question is already in the mistakes array
+                    const alreadyInMistakes = mistakes.some(
+                        m => m.factor1 === currentQuestion.factor1 && m.factor2 === currentQuestion.factor2
+                    );
+                    
+                    if (!alreadyInMistakes) {
+                        mistakes.push(currentQuestion);
+                    }
+                }
+                
+                // Clear the input and focus
+                answerInput.value = '';
+                answerInput.focus();
+                return;
+            } else {
+                // Second wrong attempt
+                feedbackDiv.textContent = `The correct answer is ${correctAnswer}`;
+                feedbackDiv.className = 'feedback wrong';
+                wrongAnswers++;
+                characterFace.className = 'character sad';
+                
+                // Already added to mistakes on first wrong attempt
+            }
+            
+            answerBtn.style.display = 'none';
+            nextBtn.style.display = 'inline-block';
+            
+            updateStats();
+        }
+        
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#f44336', '#2196f3', '#ffeb3b', '#4caf50', '#9c27b0'];
+            const container = document.body;
+            
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(confetti);
+                
+                // Animate
+                setTimeout(() => {
+                    confetti.style.opacity = '1';
+                    confetti.style.top = `${50 + Math.random() * 20}vh`;
+                    confetti.style.left = `${parseFloat(confetti.style.left) + (Math.random() * 20 - 10)}vw`;
+                    
+                    // Remove after animation
+                    setTimeout(() => {
+                        confetti.style.opacity = '0';
+                        setTimeout(() => {
+                            container.removeChild(confetti);
+                        }, 1000);
+                    }, 1000 + Math.random() * 1000);
+                }, 10);
+            }
+        }
+        
+        // Move to next question
+        function nextQuestion() {
+            currentQuestionIndex++;
+            displayCurrentQuestion();
+        }
+        
+        // Update statistics display
+        function updateStats() {
+            scoreCountSpan.textContent = totalScore;
+            correctCountSpan.textContent = correctAnswers;
+            wrongCountSpan.textContent = wrongAnswers;
+            questionCountSpan.textContent = `${currentQuestionIndex + 1}/${questions.length}`;
+        }
+        
+        // Show results screen
+        function showResults() {
+            // Check if there are mistakes to practice
+            if (mistakes.length > 0 && !practicingMistakes) {
+                // Start practicing mistakes automatically
+                startPracticingMistakes();
+                return;
+            }
+            
+            // If no mistakes or already practiced, show final results
+            gameAreaDiv.style.display = 'none';
+            resultsAreaDiv.style.display = 'block';
+            
+            finalScoreSpan.textContent = totalScore;
+            finalCorrectSpan.textContent = correctAnswers;
+            finalWrongSpan.textContent = wrongAnswers;
+            
+            const total = correctAnswers + wrongAnswers;
+            const scorePercent = total === 0 ? 0 : Math.round((correctAnswers / total) * 100);
+            scorePercentSpan.textContent = `${scorePercent}%`;
+            
+            // Show mistakes section if there are mistakes
+            if (mistakes.length > 0) {
+                mistakesSection.style.display = 'block';
+                
+                // Clear and repopulate mistakes list
+                mistakesList.innerHTML = '';
+                mistakes.forEach(mistake => {
+                    const mistakeItem = document.createElement('div');
+                    mistakeItem.className = 'mistake-item';
+                    mistakeItem.textContent = `${mistake.factor1} × ${mistake.factor2} = ${mistake.product}`;
+                    mistakesList.appendChild(mistakeItem);
+                });
+            } else {
+                mistakesSection.style.display = 'none';
+            }
+        }
+        
+        // Restart game
+        function restart() {
+            setupDiv.style.display = 'block';
+            gameAreaDiv.style.display = 'none';
+            resultsAreaDiv.style.display = 'none';
+            
+            // Clear selection
+            document.querySelectorAll('.number-btn.selected').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            selectedNumbers = [];
+            startBtn.disabled = true;
+        }
+        
+        // Handle enter key in the answer input
+        function handleEnterKey(event) {
+            if (event.key === 'Enter') {
+                if (answerBtn.style.display !== 'none') {
+                    checkAnswer();
+                } else if (nextBtn.style.display !== 'none') {
+                    nextQuestion();
+                }
+            }
+        }
+        
+        // Handle virtual keyboard input
+        function handleVirtualKeyInput(value) {
+            if (answerBtn.style.display === 'none') {
+                return; // Don't accept input between questions
+            }
+            
+            let currentValue = answerInput.value;
+            
+            if (value === 'clear') {
+                currentValue = '';
+            } else if (value === 'backspace') {
+                currentValue = currentValue.slice(0, -1);
+            } else {
+                // Only append if it's a reasonable length
+                if (currentValue.length < 4) {
+                    currentValue += value;
+                }
+            }
+            
+            // Update the input field
+            answerInput.value = currentValue;
+        }
+        
+        // Set up virtual keyboard
+        function setupVirtualKeyboard() {
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(key => {
+                key.addEventListener('click', function() {
+                    const value = this.dataset.value;
+                    handleVirtualKeyInput(value);
+                });
+            });
+            
+            // Make answer input handle clicks but not focus
+            answerInput.addEventListener('click', function(e) {
+                // Don't focus or show keyboard
+                e.preventDefault();
+            });
+        }
+        
+        // Check if device is mobile
+        function checkMobileDevice() {
+            const isMobile = window.innerWidth <= 768 || 
+                             /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                virtualKeyboard.style.display = 'flex';
+                // Make input readonly to prevent mobile keyboard
+                answerInput.setAttribute('readonly', 'readonly');
+            } else {
+                virtualKeyboard.style.display = 'none';
+                // For desktop, handle keyboard input
+                answerInput.addEventListener('keypress', handleEnterKey);
+            }
+        }
+        
+        // Initialize game
+        function init() {
+            initNumberButtons();
+            setupVirtualKeyboard();
+            checkMobileDevice();
+            
+            // Event listeners
+            startBtn.addEventListener('click', startGame);
+            answerBtn.addEventListener('click', checkAnswer);
+            nextBtn.addEventListener('click', nextQuestion);
+            restartBtn.addEventListener('click', restart);
+            
+            // Handle window resize
+            window.addEventListener('resize', checkMobileDevice);
+        }
+        
+        // Start the initialization when the page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

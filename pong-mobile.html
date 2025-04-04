@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pong Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #5D3FD3;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+        
+        #game-canvas {
+            background-color: #191970;
+            border: 8px solid #FFA500;
+            border-radius: 15px;
+            box-shadow: 0 0 20px #FF69B4;
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 3/2;
+            touch-action: none;
+        }
+        
+        .score {
+            color: #32CD32;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 2px 2px 4px #000;
+            margin: 10px 0;
+        }
+        
+        .high-score {
+            color: #FFD700;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #000;
+        }
+        
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00FFFF;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 3px 3px 6px #000;
+            display: none;
+            pointer-events: none;
+        }
+        
+        .game-over {
+            color: #FF4500;
+        }
+        
+        .instructions {
+            color: #FFFF00;
+            text-align: center;
+            font-size: 16px;
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px #000;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        button {
+            background-color: #00BFFF;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 12px 20px;
+            font-family: inherit;
+            box-shadow: 0 4px #1E90FF;
+            min-width: 120px;
+        }
+        
+        button:hover {
+            background-color: #1E90FF;
+        }
+        
+        .high-scores-panel {
+            background-color: rgba(0, 0, 150, 0.9);
+            border: 4px solid #FFA500;
+            border-radius: 15px;
+            color: white;
+            display: none;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            position: absolute;
+            text-align: center;
+            z-index: 10;
+            min-width: 300px;
+            max-width: 90%;
+        }
+        
+        .high-scores-panel h2 {
+            color: #FFD700;
+            font-size: 28px;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px #000;
+        }
+        
+        #high-scores-list {
+            margin-bottom: 20px;
+            font-size: 16px;
+            text-align: left;
+        }
+        
+        #high-scores-list div {
+            padding: 5px 10px;
+            margin: 3px 0;
+            border-radius: 5px;
+        }
+        
+        #high-scores-list div:nth-child(odd) {
+            background-color: rgba(0, 0, 200, 0.3);
+        }
+        
+        #high-scores-list div:first-child {
+            background-color: rgba(255, 215, 0, 0.3);
+            font-weight: bold;
+        }
+        
+        .name-input {
+            background-color: rgba(0, 0, 150, 0.9);
+            border: 4px solid #FFA500;
+            border-radius: 15px;
+            color: white;
+            display: none;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            position: absolute;
+            text-align: center;
+            z-index: 10;
+            width: 90%;
+            max-width: 300px;
+        }
+        
+        .name-input p {
+            color: #FF4500;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .name-input input {
+            border: 2px solid #32CD32;
+            border-radius: 10px;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding: 10px;
+            text-align: center;
+            width: 90%;
+            font-family: inherit;
+        }
+        
+        @media (max-width: 500px) {
+            .message {
+                font-size: 24px;
+            }
+            
+            .instructions {
+                font-size: 14px;
+            }
+            
+            button {
+                font-size: 14px;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="score">Score: <span id="score">0</span></div>
+        <div class="high-score">High Score: <span id="high-score">0</span></div>
+        
+        <canvas id="game-canvas"></canvas>
+        
+        <div id="start-message" class="message">TAP TO START</div>
+        <div id="game-over" class="message game-over">GAME OVER<br><span style="font-size: 20px; margin-top: 10px;">TAP TO PLAY AGAIN</span></div>
+        
+        <div class="name-input" id="name-input">
+            <p>NEW HIGH SCORE!</p>
+            <input type="text" id="player-name" placeholder="Enter your name" maxlength="10">
+            <button id="save-score">SAVE</button>
+        </div>
+        
+        <div class="high-scores-panel" id="high-scores-panel">
+            <h2>HIGH SCORES</h2>
+            <div id="high-scores-list"></div>
+            <button id="close-high-scores">CLOSE</button>
+        </div>
+        
+        <div class="instructions">
+            Use A/D keys or ←/→ arrows to move the paddle<br>
+            On mobile, swipe left/right to move
+        </div>
+        
+        <div class="buttons">
+            <button id="reset-button">PLAY AGAIN</button>
+            <button id="high-scores-button">HIGH SCORES</button>
+        </div>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const highScoreElement = document.getElementById('high-score');
+        const startMessage = document.getElementById('start-message');
+        const gameOverMessage = document.getElementById('game-over');
+        const nameInput = document.getElementById('name-input');
+        const playerNameInput = document.getElementById('player-name');
+        const highScoresPanel = document.getElementById('high-scores-panel');
+        
+        // Set canvas dimensions
+        canvas.width = 600;
+        canvas.height = 400;
+        
+        // Game state
+        let gameState = {
+            running: false,
+            waiting: true,
+            gameOver: false
+        };
+        
+        // Game objects
+        const paddle = {
+            x: canvas.width / 2 - 50,
+            y: canvas.height - 30,
+            width: 100,
+            height: 15,
+            speed: 8,
+            color: '#FF0000'
+        };
+        
+        const ball = {
+            x: 0,
+            y: 0,
+            size: 15,
+            speed: 5,
+            dx: 0,
+            dy: 0,
+            color: '#FF1493',
+            rainbow: true,
+            hue: 0,
+            trail: []
+        };
+        
+        // Score
+        let score = 0;
+        
+        // Controls
+        const keys = {
+            left: false,
+            right: false
+        };
+        
+        // Touch tracking
+        let touchX = 0;
+        let lastTouchX = 0;
+        
+        // Detect mobile device
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // High score system
+        const highScores = {
+            scores: [],
+            maxScores: 10,
+            
+            init() {
+                this.loadScores();
+                this.updateDisplay();
+            },
+            
+            loadScores() {
+                try {
+                    const saved = localStorage.getItem('pongHighScores');
+                    if (saved) {
+                        this.scores = JSON.parse(saved);
+                    }
+                } catch (e) {
+                    console.error('Error loading scores:', e);
+                    this.scores = [];
+                }
+            },
+            
+            saveScores() {
+                try {
+                    localStorage.setItem('pongHighScores', JSON.stringify(this.scores));
+                } catch (e) {
+                    console.error('Error saving scores:', e);
+                }
+            },
+            
+            getHighScore() {
+                if (this.scores.length > 0) {
+                    return this.scores[0].score;
+                }
+                return 0;
+            },
+            
+            isHighScore(score) {
+                return this.scores.length < this.maxScores || 
+                       score > this.scores[this.scores.length - 1].score;
+            },
+            
+            addScore(name, score) {
+                const newScore = {
+                    name: name || 'Player',
+                    score: score,
+                    date: new Date().toLocaleDateString()
+                };
+                
+                this.scores.push(newScore);
+                this.scores.sort((a, b) => b.score - a.score);
+                
+                if (this.scores.length > this.maxScores) {
+                    this.scores = this.scores.slice(0, this.maxScores);
+                }
+                
+                this.saveScores();
+                this.updateDisplay();
+            },
+            
+            updateDisplay() {
+                highScoreElement.textContent = this.getHighScore();
+            },
+            
+            showHighScores() {
+                const listElement = document.getElementById('high-scores-list');
+                listElement.innerHTML = '';
+                
+                if (this.scores.length === 0) {
+                    const emptyElement = document.createElement('div');
+                    emptyElement.textContent = 'No high scores yet. Be the first!';
+                    listElement.appendChild(emptyElement);
+                } else {
+                    this.scores.forEach((score, index) => {
+                        const scoreElement = document.createElement('div');
+                        scoreElement.textContent = `${index + 1}. ${score.name}: ${score.score}`;
+                        listElement.appendChild(scoreElement);
+                    });
+                }
+                
+                highScoresPanel.style.display = 'block';
+            }
+        };
+        
+        // Event Listeners - Keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+                keys.left = true;
+            }
+            if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
+                keys.right = true;
+            }
+            
+            // Start game with space or enter
+            if ((e.key === ' ' || e.key === 'Enter') && 
+                nameInput.style.display !== 'block' && 
+                highScoresPanel.style.display !== 'block') {
+                
+                if (gameState.gameOver) {
+                    resetGame();
+                }
+                if (gameState.waiting) {
+                    startGame();
+                }
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+                keys.left = false;
+            }
+            if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
+                keys.right = false;
+            }
+        });
+        
+        // Event Listeners - Touch
+        canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+        
+        function handleTouchStart(e) {
+            if (nameInput.style.display === 'block' || 
+                highScoresPanel.style.display === 'block') {
+                return;
+            }
+            
+            e.preventDefault();
+            
+            // Get touch position
+            const touch = e.touches[0];
+            touchX = touch.clientX;
+            lastTouchX = touchX;
+            
+            // Map touch to canvas coordinates
+            const rect = canvas.getBoundingClientRect();
+            const canvasX = (touchX - rect.left) * (canvas.width / rect.width);
+            
+            // Move paddle to touch position
+            paddle.x = canvasX - paddle.width / 2;
+            
+            // Keep paddle in bounds
+            keepPaddleInBounds();
+            
+            // Start game on touch if waiting
+            if (gameState.waiting || gameState.gameOver) {
+                if (gameState.gameOver) {
+                    resetGame();
+                }
+                startGame();
+            }
+        }
+        
+        function handleTouchMove(e) {
+            if (nameInput.style.display === 'block' || 
+                highScoresPanel.style.display === 'block' ||
+                !gameState.running) {
+                return;
+            }
+            
+            e.preventDefault();
+            
+            // Get current touch position
+            const touch = e.touches[0];
+            const currentX = touch.clientX;
+            
+            // Calculate movement
+            const rect = canvas.getBoundingClientRect();
+            const movementX = (currentX - lastTouchX) * (canvas.width / rect.width);
+            
+            // Move paddle
+            paddle.x += movementX;
+            
+            // Keep paddle in bounds
+            keepPaddleInBounds();
+            
+            lastTouchX = currentX;
+        }
+        
+        // Event Listeners - Canvas Click
+        canvas.addEventListener('click', handleCanvasClick);
+        
+        function handleCanvasClick() {
+            if (nameInput.style.display === 'block' || 
+                highScoresPanel.style.display === 'block') {
+                return;
+            }
+            
+            if (gameState.gameOver) {
+                resetGame();
+            }
+            
+            if (gameState.waiting) {
+                startGame();
+            }
+        }
+        
+        // Event Listeners - Buttons
+        document.getElementById('reset-button').addEventListener('click', () => {
+            resetGame();
+            startGame();
+        });
+        
+        document.getElementById('high-scores-button').addEventListener('click', () => {
+            highScores.showHighScores();
+        });
+        
+        document.getElementById('close-high-scores').addEventListener('click', () => {
+            highScoresPanel.style.display = 'none';
+        });
+        
+        document.getElementById('save-score').addEventListener('click', saveHighScore);
+        
+        // Enter key in name input
+        playerNameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveHighScore();
+            }
+        });
+        
+        // Helper Functions
+        function keepPaddleInBounds() {
+            if (paddle.x < 0) {
+                paddle.x = 0;
+            } else if (paddle.x > canvas.width - paddle.width) {
+                paddle.x = canvas.width - paddle.width;
+            }
+        }
+        
+        function placeBallOnPaddle() {
+            ball.x = paddle.x + paddle.width / 2;
+            ball.y = paddle.y - ball.size;
+        }
+        
+        function launchBall() {
+            // Random angle between -60 and 60 degrees (in radians)
+            const angle = (Math.random() * Math.PI / 1.5) - Math.PI / 3;
+            
+            // Set velocity components (negative dy = upward)
+            ball.dx = ball.speed * Math.sin(angle);
+            ball.dy = -ball.speed * Math.cos(angle);
+        }
+        
+        function resetBall() {
+            placeBallOnPaddle();
+            ball.dx = 0;
+            ball.dy = 0;
+            ball.speed = 5;
+            ball.trail = [];
+        }
+        
+        function updateScore(newScore) {
+            score = newScore;
+            scoreElement.textContent = score;
+        }
+        
+        function saveHighScore() {
+            const name = playerNameInput.value.trim();
+            highScores.addScore(name, score);
+            
+            nameInput.style.display = 'none';
+            playerNameInput.value = '';
+            
+            highScores.showHighScores();
+        }
+        
+        // Game Functions
+        function startGame() {
+            if (gameState.running) return;
+            
+            gameState.waiting = false;
+            gameState.running = true;
+            gameState.gameOver = false;
+            
+            updateScore(0);
+            
+            // Reset paddle position
+            paddle.x = canvas.width / 2 - paddle.width / 2;
+            
+            // Reset and launch ball
+            resetBall();
+            launchBall();
+            
+            // Hide messages
+            startMessage.style.display = 'none';
+            gameOverMessage.style.display = 'none';
+        }
+        
+        function resetGame() {
+            gameState.running = false;
+            gameState.waiting = true;
+            gameState.gameOver = false;
+            
+            updateScore(0);
+            
+            // Reset paddle and ball
+            paddle.x = canvas.width / 2 - paddle.width / 2;
+            resetBall();
+            
+            // Show start message
+            startMessage.style.display = 'block';
+            gameOverMessage.style.display = 'none';
+            highScoresPanel.style.display = 'none';
+        }
+        
+        function gameOver() {
+            gameState.running = false;
+            gameState.gameOver = true;
+            
+            if (highScores.isHighScore(score)) {
+                nameInput.style.display = 'block';
+                if (!isMobile) {
+                    playerNameInput.focus();
+                }
+            } else {
+                gameOverMessage.style.display = 'block';
+            }
+        }
+        
+        function checkCollision() {
+            // Ball hit left or right wall
+            if (ball.x - ball.size < 0 || ball.x + ball.size > canvas.width) {
+                ball.dx = -ball.dx;
+            }
+            
+            // Ball hit top wall
+            if (ball.y - ball.size < 0) {
+                ball.dy = -ball.dy;
+            }
+            
+            // Ball hit bottom (game over)
+            if (ball.y + ball.size > canvas.height) {
+                gameOver();
+                return;
+            }
+            
+            // Ball hit paddle
+            if (ball.y + ball.size > paddle.y && 
+                ball.x > paddle.x && 
+                ball.x < paddle.x + paddle.width && 
+                ball.y < paddle.y + paddle.height) {
+                
+                // Calculate hit position on paddle (-1 to 1)
+                const hitPos = (ball.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
+                
+                // Calculate angle based on hit position (max 60 degrees)
+                const angle = hitPos * Math.PI / 3;
+                
+                // Set new velocity
+                ball.dy = -ball.speed * Math.cos(angle);
+                ball.dx = ball.speed * Math.sin(angle);
+                
+                // Increase speed slightly
+                if (ball.speed < 15) {
+                    ball.speed += 0.2;
+                }
+                
+                // Increment score
+                updateScore(score + 1);
+            }
+        }
+        
+        function update() {
+            // Move paddle with keyboard
+            if (keys.left && paddle.x > 0) {
+                paddle.x -= paddle.speed;
+            }
+            if (keys.right && paddle.x < canvas.width - paddle.width) {
+                paddle.x += paddle.speed;
+            }
+            
+            // Keep paddle in bounds
+            keepPaddleInBounds();
+            
+            // If waiting to start, keep ball on paddle
+            if (gameState.waiting) {
+                placeBallOnPaddle();
+                return;
+            }
+            
+            // Don't update if game is not running
+            if (!gameState.running) return;
+            
+            // Move ball
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+            
+            // Update ball trail
+            if (ball.trail.length > 5) {
+                ball.trail.pop();
+            }
+            ball.trail.unshift({x: ball.x, y: ball.y, hue: ball.hue});
+            
+            // Check collisions
+            checkCollision();
+        }
+        
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = '#191970';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw stars
+            for (let i = 0; i < 30; i++) {
+                const starSize = Math.random() * 3 + 1;
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.7 + 0.3})`;
+                ctx.fillRect(
+                    Math.random() * canvas.width, 
+                    Math.random() * canvas.height / 2, 
+                    starSize, 
+                    starSize
+                );
+            }
+            
+            // Draw paddle
+            ctx.fillStyle = paddle.color;
+            ctx.beginPath();
+            ctx.roundRect(paddle.x, paddle.y, paddle.width, paddle.height, 8);
+            ctx.fill();
+            
+            // Draw ball trail and blur
+            if (gameState.running && ball.trail.length > 0) {
+                // Calculate velocity direction
+                const speed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+                
+                if (speed > 0) {
+                    // Normalize direction
+                    const dirX = ball.dx / speed;
+                    const dirY = ball.dy / speed;
+                    
+                    // Blur length based on speed
+                    const blurLength = ball.speed * 3;
+                    
+                    // Main blur effect
+                    ctx.beginPath();
+                    ctx.moveTo(ball.x, ball.y);
+                    ctx.lineTo(
+                        ball.x - dirX * blurLength,
+                        ball.y - dirY * blurLength
+                    );
+                    ctx.lineCap = "round";
+                    ctx.lineWidth = ball.size * 2;
+                    
+                    // Create gradient
+                    const gradient = ctx.createLinearGradient(
+                        ball.x, ball.y,
+                        ball.x - dirX * blurLength,
+                        ball.y - dirY * blurLength
+                    );
+                    gradient.addColorStop(0, `hsla(${ball.hue}, 100%, 60%, 0.8)`);
+                    gradient.addColorStop(1, `hsla(${ball.hue}, 100%, 60%, 0)`);
+                    
+                    ctx.strokeStyle = gradient;
+                    ctx.stroke();
+                    
+                    // Draw trail balls
+                    for (let i = 1; i < ball.trail.length; i++) {
+                        const pos = ball.trail[i];
+                        const alpha = 0.7 - (i * 0.15);
+                        
+                        ctx.fillStyle = `hsla(${pos.hue}, 100%, 60%, ${alpha})`;
+                        ctx.beginPath();
+                        ctx.arc(pos.x, pos.y, ball.size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+            
+            // Draw ball with rainbow effect
+            if (ball.rainbow) {
+                ball.hue = (ball.hue + 1) % 360;
+                ctx.fillStyle = `hsl(${ball.hue}, 100%, 60%)`;
+                
+                // Add glow
+                ctx.shadowColor = `hsl(${ball.hue}, 100%, 50%)`;
+                ctx.shadowBlur = 15;
+            } else {
+                ctx.fillStyle = ball.color;
+                ctx.shadowBlur = 0;
+            }
+            
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Reset shadow
+            ctx.shadowBlur = 0;
+        }
+        
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Initialize game
+        function init() {
+            resetGame();
+            highScores.init();
+            startMessage.style.display = 'block';
+            gameLoop();
+        }
+        
+        // Start everything
+        init();
+    </script>
+</body>
+</html>
