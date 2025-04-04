@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elements Quiz Game</title>
+    <style>
+        :root {
+            --primary-color: #2e86de;
+            --secondary-color: #ff6b6b;
+            --background-color: #f0f5f9;
+            --correct-color: #4caf50;
+            --wrong-color: #ff5252;
+            --button-color: #42a5f5;
+            --card-color: #ffffff;
+            --text-color: #3a3a3a;
+            --hint-color: #ff9800;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2373c2fb' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 2.5rem;
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .game-setup, .game-area, .results-area {
+            background-color: var(--card-color);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 3px solid #bbdefb;
+        }
+        
+        .mode-selection {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .mode-btn {
+            width: 200px;
+            height: 100px;
+            border-radius: 15px;
+            border: none;
+            background-color: #e3f2fd;
+            color: var(--primary-color);
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .mode-btn:hover {
+            transform: scale(1.05);
+            background-color: #bbdefb;
+        }
+        
+        .mode-btn.selected {
+            background-color: var(--primary-color);
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .mode-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .start-btn, .answer-btn, .next-btn, .restart-btn, .hint-btn {
+            background-color: var(--button-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .start-btn:hover, .answer-btn:hover, .next-btn:hover, .restart-btn:hover, .hint-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .start-btn:active, .answer-btn:active, .next-btn:active, .restart-btn:active, .hint-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .restart-btn {
+            background-color: #26c6da;
+        }
+        
+        .hint-btn {
+            background-color: var(--hint-color);
+        }
+        
+        .element-display {
+            font-size: 80px;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+            animation: bounce 0.5s ease;
+        }
+        
+        .element-card {
+            width: 120px;
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--primary-color);
+            border-radius: 10px;
+            margin: 0 auto;
+            background-color: #e3f2fd;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .element-number {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 16px;
+            color: var(--text-color);
+        }
+        
+        .element-symbol {
+            font-size: 60px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .element-name {
+            font-size: 18px;
+            color: var(--text-color);
+        }
+        
+        @keyframes bounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .answer-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            font-size: 24px;
+            text-align: center;
+            border: 3px solid var(--primary-color);
+            border-radius: 10px;
+            margin: 0 auto;
+            display: block;
+            transition: all 0.3s;
+            font-family: inherit;
+            text-transform: capitalize;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 10px rgba(46, 134, 222, 0.3);
+        }
+        
+        .feedback {
+            font-size: 24px;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+            min-height: 30px;
+            transition: all 0.3s;
+        }
+        
+        .correct {
+            color: var(--correct-color);
+            animation: pop 0.5s ease;
+        }
+        
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .wrong {
+            color: var(--wrong-color);
+        }
+        
+        .second-chance {
+            color: #ff9800;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+            background-color: #e3f2fd;
+            padding: 10px 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 5px;
+            min-width: 100px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .mistakes-list {
+            margin-top: 20px;
+        }
+        
+        .mistake-item {
+            background-color: #fff8e1;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            text-align: center;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #ffa726;
+        }
+        
+        .character {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%2373c2fb'/%3E%3Ccircle cx='35' cy='40' r='5' fill='%233a3a3a'/%3E%3Ccircle cx='65' cy='40' r='5' fill='%233a3a3a'/%3E%3Cpath d='M35 70 Q50 80 65 70' stroke='%233a3a3a' stroke-width='3' fill='none'/%3E%3C/svg%3E");
+            background-size: contain;
+            transition: transform 0.3s;
+        }
+        
+        .character.happy {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%2373c2fb'/%3E%3Ccircle cx='35' cy='40' r='5' fill='%233a3a3a'/%3E%3Ccircle cx='65' cy='40' r='5' fill='%233a3a3a'/%3E%3Cpath d='M35 65 Q50 80 65 65' stroke='%233a3a3a' stroke-width='3' fill='none'/%3E%3C/svg%3E");
+        }
+        
+        .character.sad {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%2373c2fb'/%3E%3Ccircle cx='35' cy='40' r='5' fill='%233a3a3a'/%3E%3Ccircle cx='65' cy='40' r='5' fill='%233a3a3a'/%3E%3Cpath d='M35 75 Q50 65 65 75' stroke='%233a3a3a' stroke-width='3' fill='none'/%3E%3C/svg%3E");
+        }
+        
+        .character.thinking {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%2373c2fb'/%3E%3Ccircle cx='35' cy='40' r='5' fill='%233a3a3a'/%3E%3Ccircle cx='65' cy='40' r='5' fill='%233a3a3a'/%3E%3Cpath d='M40 70 L60 70' stroke='%233a3a3a' stroke-width='3' fill='none'/%3E%3Ccircle cx='75' cy='30' r='10' fill='%23ffffff' stroke='%233a3a3a' stroke-width='2'/%3E%3Ctext x='75' y='33' text-anchor='middle' font-size='15' fill='%233a3a3a'%3E%3F%3C/text%3E%3C/svg%3E");
+        }
+        
+        #scoreAnimation {
+            position: fixed;
+            font-size: 24px;
+            font-weight: bold;
+            color: #4caf50;
+            opacity: 0;
+            transition: all 0.5s;
+            pointer-events: none;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f44336;
+            opacity: 0;
+        }
+        
+        .virtual-keyboard {
+            display: none; /* Hidden by default, shown on mobile */
+            flex-direction: column;
+            margin: 12px auto;
+            max-width: 100%;
+        }
+        
+        .key-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+            gap: 5px;
+        }
+        
+        .key {
+            min-width: 32px;
+            height: 45px;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            padding: 0 5px;
+        }
+        
+        .key:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .key-backspace {
+            background-color: #ffcdd2;
+            min-width: 60px;
+        }
+        
+        .key-clear {
+            background-color: #ffecb3;
+        }
+        
+        .key-space {
+            min-width: 100px;
+            background-color: #e3f2fd;
+        }
+        
+        .hint-container {
+            margin: 15px auto;
+            padding: 15px;
+            background-color: #fff8e1;
+            border-radius: 10px;
+            border-left: 4px solid var(--hint-color);
+            max-width: 600px;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .hint-container.visible {
+            opacity: 1;
+            height: auto;
+            margin-bottom: 15px;
+        }
+        
+        .hint-title {
+            color: var(--hint-color);
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+        
+        .hint-text {
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .difficulty-selection {
+            margin: 20px auto;
+            text-align: center;
+        }
+        
+        .difficulty-option {
+            display: inline-block;
+            margin: 0 10px;
+        }
+        
+        .difficulty-option input[type="radio"] {
+            display: none;
+        }
+        
+        .difficulty-option label {
+            display: inline-block;
+            background-color: #e3f2fd;
+            color: var(--primary-color);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .difficulty-option input[type="radio"]:checked + label {
+            background-color: var(--primary-color);
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .streak-badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            animation: streakPulse 2s infinite;
+        }
+        
+        @keyframes streakPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .streak-badge .fire-icon {
+            color: #ff7700;
+            font-size: 1.2em;
+            margin-right: 3px;
+        }
+        
+        .streak-info {
+            background-color: #ffac33;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            margin: 0 auto 10px;
+            width: fit-content;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+                margin-top: 5px;
+                margin-bottom: 10px;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+            }
+            
+            h3 {
+                font-size: 1.1rem;
+            }
+            
+            .container {
+                max-width: 95vw;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            .game-setup, .game-area, .results-area {
+                padding: 12px;
+                margin-bottom: 10px;
+                border-width: 2px;
+            }
+            
+            .virtual-keyboard {
+                display: flex;
+                margin: 10px auto;
+            }
+            
+            .key-row {
+                margin-bottom: 5px;
+                gap: 2px;
+            }
+            
+            .key {
+                min-width: 28px;
+                height: 40px;
+                font-size: 14px;
+            }
+            
+            .stats {
+                margin: 8px 0;
+                gap: 5px;
+            }
+            
+            .stat-item {
+                min-width: 50px;
+                padding: 4px 6px;
+                margin: 2px;
+                border-radius: 10px;
+            }
+            
+            .stat-value {
+                font-size: 16px;
+            }
+            
+            .stat-label {
+                font-size: 10px;
+            }
+            
+            .element-display {
+                font-size: 48px;
+                margin: 10px 0;
+            }
+            
+            .element-card {
+                width: 90px;
+                height: 120px;
+            }
+            
+            .element-symbol {
+                font-size: 42px;
+            }
+            
+            .element-name {
+                font-size: 14px;
+            }
+            
+            .character {
+                width: 45px;
+                height: 45px;
+                margin-bottom: 5px;
+            }
+            
+            .mode-btn {
+                width: 150px;
+                height: 80px;
+                font-size: 14px;
+            }
+            
+            .mode-icon {
+                font-size: 24px;
+                margin-bottom: 5px;
+            }
+            
+            .feedback {
+                font-size: 18px;
+                margin: 8px 0;
+                min-height: 20px;
+            }
+            
+            .start-btn, .answer-btn, .next-btn, .restart-btn, .hint-btn {
+                font-size: 16px;
+                padding: 8px 16px;
+                margin: 6px 3px;
+                border-radius: 20px;
+            }
+            
+            .answer-input {
+                max-width: 220px;
+                padding: 8px;
+                font-size: 18px;
+                border-width: 2px;
+            }
+            
+            .hint-container {
+                padding: 10px;
+                margin: 10px auto;
+            }
+            
+            .hint-title {
+                font-size: 16px;
+            }
+            
+            .hint-text {
+                font-size: 14px;
+            }
+            
+            .mistake-item {
+                padding: 8px;
+                margin-bottom: 5px;
+                font-size: 14px;
+                border-left-width: 3px;
+            }
+            
+            .difficulty-option label {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+            
+            .streak-info {
+                padding: 3px 8px;
+                font-size: 12px;
+                margin-bottom: 5px;
+            }
+            
+            .streak-badge .fire-icon {
+                font-size: 1em;
+            }
+        }
+        
+        .active-button {
+            transform: translateY(3px) !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+            transition: all 0.1s !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Periodic Table Quiz</h1>
+        
+        <div class="game-setup" id="setup">
+            <div class="character thinking"></div>
+            <h2>Choose game mode:</h2>
+            <div class="mode-selection">
+                <button class="mode-btn" id="symbolToName">
+                    <div class="mode-icon">⚛️</div>
+                    Guess Element Name from Symbol
+                </button>
+                <button class="mode-btn" id="nameToSymbol">
+                    <div class="mode-icon">🔬</div>
+                    Guess Element Symbol from Name
+                </button>
+            </div>
+            
+            <div class="difficulty-selection">
+                <h3>Difficulty level:</h3>
+                <div class="difficulty-option">
+                    <input type="radio" id="difficultyEasy" name="difficulty" value="easy" checked>
+                    <label for="difficultyEasy">Easy (First 30 elements)</label>
+                </div>
+                <div class="difficulty-option">
+                    <input type="radio" id="difficultyMedium" name="difficulty" value="medium">
+                    <label for="difficultyMedium">Medium (First 54 elements)</label>
+                </div>
+                <div class="difficulty-option">
+                    <input type="radio" id="difficultyHard" name="difficulty" value="hard">
+                    <label for="difficultyHard">Hard (All elements)</label>
+                </div>
+            </div>
+            
+            <div id="streakInfo" class="streak-info" style="display: none;">
+                <span class="streak-badge"><span class="fire-icon">🔥</span> <span id="streakCount">0</span> day streak!</span>
+                <div style="font-size: 0.8em; margin-top: 3px;">Come back tomorrow to continue your streak!</div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="start-btn" id="startBtn" disabled>Start Quiz</button>
+            </div>
+        </div>
+        
+        <div class="game-area" id="gameArea" style="display: none;">
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="scoreCount">0</div>
+                    <div class="stat-label">Points</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="correctCount">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="wrongCount">0</div>
+                    <div class="stat-label">Wrong</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="questionCount">0/0</div>
+                    <div class="stat-label">Question</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value"><span class="fire-icon">🔥</span><span id="currentStreak">0</span></div>
+                    <div class="stat-label">Streak</div>
+                </div>
+            </div>
+            
+            <div class="character" id="characterFace"></div>
+            
+            <div id="questionDisplay"></div>
+            
+            <input type="text" class="answer-input" id="answerInput" placeholder="Your answer" readonly>
+            
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="hint-container" id="hintContainer">
+                <h3 class="hint-title">Hint:</h3>
+                <p class="hint-text" id="hintText"></p>
+                <p class="hint-text" id="hintCategory"></p>
+            </div>
+            
+            <div class="virtual-keyboard" id="virtualKeyboard">
+                <!-- Virtual keyboard will be dynamically generated -->
+            </div>
+            
+            <div class="buttons-container">
+                <button class="hint-btn" id="hintBtn">Show Hint</button>
+                <button class="answer-btn" id="answerBtn">Check Answer</button>
+                <button class="next-btn" id="nextBtn" style="display: none;">Next Question</button>
+            </div>
+        </div>
+        
+        <div class="results-area" id="resultsArea" style="display: none;">
+            <div class="character happy"></div>
+            <h2>Quiz Completed!</h2>
+            
+            <div id="streakUpdateInfo" class="streak-info" style="display: none;">
+                <span class="streak-badge"><span class="fire-icon">🔥</span> <span id="updatedStreakCount">0</span> day streak!</span>
+                <div style="font-size: 0.8em; margin-top: 3px;">Come back tomorrow to continue your streak!</div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="finalScore">0</div>
+                    <div class="stat-label">Points</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalCorrect">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="finalWrong">0</div>
+                    <div class="stat-label">Wrong</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="scorePercent">0%</div>
+                    <div class="stat-label">Score</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value"><span class="fire-icon">🔥</span><span id="finalStreak">0</span></div>
+                    <div class="stat-label">Streak</div>
+                </div>
+            </div>
+            
+            <div id="mistakesSection" style="display: none;">
+                <h3>Your Challenges:</h3>
+                <div class="mistakes-list" id="mistakesList">
+                    <!-- Mistakes will be added here -->
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button class="restart-btn" id="restartBtn">Start New Quiz</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="scoreAnimation">+5</div>
+    
+    <script>
+        // DOM elements
+        const setupDiv = document.getElementById('setup');
+        const gameAreaDiv = document.getElementById('gameArea');
+        const resultsAreaDiv = document.getElementById('resultsArea');
+        const startBtn = document.getElementById('startBtn');
+        const symbolToNameBtn = document.getElementById('symbolToName');
+        const nameToSymbolBtn = document.getElementById('nameToSymbol');
+        const questionDisplay = document.getElementById('questionDisplay');
+        const answerInput = document.getElementById('answerInput');
+        const answerBtn = document.getElementById('answerBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const hintContainer = document.getElementById('hintContainer');
+        const hintText = document.getElementById('hintText');
+        const hintCategory = document.getElementById('hintCategory');
+        const feedbackDiv = document.getElementById('feedback');
+        const scoreCountSpan = document.getElementById('scoreCount');
+        const correctCountSpan = document.getElementById('correctCount');
+        const wrongCountSpan = document.getElementById('wrongCount');
+        const questionCountSpan = document.getElementById('questionCount');
+        const finalScoreSpan = document.getElementById('finalScore');
+        const finalCorrectSpan = document.getElementById('finalCorrect');
+        const finalWrongSpan = document.getElementById('finalWrong');
+        const scorePercentSpan = document.getElementById('scorePercent');
+        const mistakesSection = document.getElementById('mistakesSection');
+        const mistakesList = document.getElementById('mistakesList');
+        const restartBtn = document.getElementById('restartBtn');
+        const characterFace = document.getElementById('characterFace');
+        const scoreAnimation = document.getElementById('scoreAnimation');
+        const virtualKeyboard = document.getElementById('virtualKeyboard');
+        const streakInfoDiv = document.getElementById('streakInfo');
+        const streakCountSpan = document.getElementById('streakCount');
+        const currentStreakSpan = document.getElementById('currentStreak');
+        const updatedStreakCountSpan = document.getElementById('updatedStreakCount');
+        const finalStreakSpan = document.getElementById('finalStreak');
+        const streakUpdateInfoDiv = document.getElementById('streakUpdateInfo');
+        
+        // Game state variables
+        let elements = [];
+        let selectedMode = null;
+        let selectedDifficulty = 'easy';
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let wrongAnswers = 0;
+        let mistakes = [];
+        let totalScore = 0;
+        let isSecondChance = false;
+        let hintUsed = false;
+        let currentStreak = 0;
+        let lastPlayedDate = null;
+        
+        // Local storage keys
+        const STORAGE_KEY_MODE = 'elementsQuiz_selectedMode';
+        const STORAGE_KEY_DIFFICULTY = 'elementsQuiz_difficulty';
+        const STORAGE_KEY_STREAK = 'elementsQuiz_streak';
+        const STORAGE_KEY_LAST_PLAYED = 'elementsQuiz_lastPlayed';
+        
+        // Encouraging messages
+        const correctMessages = [
+            "Awesome! 🎉", 
+            "Great job! 🌟", 
+            "You got it! 👍", 
+            "Perfect! 💪", 
+            "Fantastic! 🏆",
+            "Brilliant! ✨",
+            "Amazing! 🚀"
+        ];
+        
+        const secondChanceMessages = [
+            "Try once more! 🔄",
+            "Almost there! Try again ⚡",
+            "One more try! 💭",
+            "You can do it! Try again 🌈",
+            "Let's try one more time! 🧩"
+        ];
+        
+        // Soundex implementation for handling spelling mistakes
+        function soundex(s) {
+            // Early return for empty strings
+            if (!s) return "";
+            
+            // Convert to uppercase for consistency
+            const str = s.toUpperCase();
+            
+            // Keep first letter
+            let result = str[0];
+            
+            // Soundex mapping for consonants
+            const mapping = {
+                B: 1, F: 1, P: 1, V: 1,
+                C: 2, G: 2, J: 2, K: 2, Q: 2, S: 2, X: 2, Z: 2,
+                D: 3, T: 3,
+                L: 4,
+                M: 5, N: 5,
+                R: 6
+            };
+            
+            // Skip vowels and non-alphabetic characters, remove consecutive duplicates
+            let previous = 0;
+            for (let i = 1; i < str.length; i++) {
+                const char = str[i];
+                const code = mapping[char] || 0;
+                
+                // Skip vowels and 'H', 'W', 'Y'
+                if (code === 0) continue;
+                
+                // Skip duplicates
+                if (code !== previous) {
+                    result += code;
+                }
+                
+                previous = code;
+            }
+            
+            // Pad with zeros and limit to 4 characters
+            result = result.padEnd(4, '0').substring(0, 4);
+            
+            return result;
+        }
+        
+        // Fetch elements data
+        async function fetchElements() {
+            try {
+                const response = await fetch('elements.json');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch elements data');
+                }
+                elements = await response.json();
+                initializeGame();
+            } catch (error) {
+                console.error('Error loading elements data:', error);
+                feedbackDiv.textContent = 'Failed to load elements data. Please try refreshing the page.';
+                feedbackDiv.className = 'feedback wrong';
+            }
+        }
+        
+        // Initialize game
+        function initializeGame() {
+            // Load saved mode and difficulty if available
+            loadGamePreferences();
+            
+            // Set up event listeners
+            symbolToNameBtn.addEventListener('click', () => selectMode('symbolToName'));
+            nameToSymbolBtn.addEventListener('click', () => selectMode('nameToSymbol'));
+            
+            document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    selectedDifficulty = this.value;
+                    saveGamePreferences();
+                });
+            });
+            
+            startBtn.addEventListener('click', startQuiz);
+            answerBtn.addEventListener('click', checkAnswer);
+            nextBtn.addEventListener('click', nextQuestion);
+            hintBtn.addEventListener('click', showHint);
+            restartBtn.addEventListener('click', restart);
+            
+            // Set up virtual keyboard
+            setupVirtualKeyboard();
+            
+            // Check if mobile device
+            checkMobileDevice();
+            
+            // Load streak data
+            loadStreakData();
+            
+            // Handle window resize
+            window.addEventListener('resize', checkMobileDevice);
+        }
+        
+        // Select game mode
+        function selectMode(mode) {
+            selectedMode = mode;
+            
+            // Update UI to reflect selection
+            symbolToNameBtn.classList.toggle('selected', mode === 'symbolToName');
+            nameToSymbolBtn.classList.toggle('selected', mode === 'nameToSymbol');
+            
+            // Enable start button
+            startBtn.disabled = false;
+            
+            // Save selection to localStorage
+            saveGamePreferences();
+        }
+        
+        // Save game preferences to localStorage
+        function saveGamePreferences() {
+            if (selectedMode) {
+                localStorage.setItem(STORAGE_KEY_MODE, selectedMode);
+            }
+            localStorage.setItem(STORAGE_KEY_DIFFICULTY, selectedDifficulty);
+        }
+        
+        // Load game preferences from localStorage
+        function loadGamePreferences() {
+            try {
+                const savedMode = localStorage.getItem(STORAGE_KEY_MODE);
+                const savedDifficulty = localStorage.getItem(STORAGE_KEY_DIFFICULTY);
+                
+                if (savedMode) {
+                    selectMode(savedMode);
+                }
+                
+                if (savedDifficulty) {
+                    selectedDifficulty = savedDifficulty;
+                    const difficultyOption = document.getElementById(`difficulty${capitalizeFirstLetter(savedDifficulty)}`);
+                    if (difficultyOption) {
+                        difficultyOption.checked = true;
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading game preferences:', e);
+                // Reset in case of error
+                selectedMode = null;
+                selectedDifficulty = 'easy';
+                startBtn.disabled = true;
+            }
+        }
+        
+        // Capitalize first letter of a string
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        
+        // Load streak data from localStorage
+        function loadStreakData() {
+            try {
+                const savedStreak = localStorage.getItem(STORAGE_KEY_STREAK);
+                const savedLastPlayed = localStorage.getItem(STORAGE_KEY_LAST_PLAYED);
+                
+                if (savedStreak) {
+                    currentStreak = parseInt(savedStreak);
+                }
+                
+                if (savedLastPlayed) {
+                    lastPlayedDate = new Date(savedLastPlayed);
+                }
+                
+                // Update UI with streak info
+                updateStreakDisplay();
+            } catch (e) {
+                console.error('Error loading streak data:', e);
+                // Reset in case of error
+                currentStreak = 0;
+                lastPlayedDate = null;
+            }
+        }
+        
+        // Save streak data to localStorage
+        function saveStreakData() {
+            localStorage.setItem(STORAGE_KEY_STREAK, currentStreak.toString());
+            if (lastPlayedDate) {
+                localStorage.setItem(STORAGE_KEY_LAST_PLAYED, lastPlayedDate.toISOString());
+            }
+        }
+        
+        // Update the streak displays in the UI
+        function updateStreakDisplay() {
+            // Update all streak displays
+            streakCountSpan.textContent = currentStreak;
+            currentStreakSpan.textContent = currentStreak;
+            updatedStreakCountSpan.textContent = currentStreak;
+            finalStreakSpan.textContent = currentStreak;
+            
+            // Show streak info if streak exists
+            if (currentStreak > 0) {
+                streakInfoDiv.style.display = 'block';
+            } else {
+                streakInfoDiv.style.display = 'none';
+            }
+        }
+        
+        // Check and update streak when game is completed
+        function updateStreak() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize to start of day
+            
+            if (!lastPlayedDate) {
+                // First time playing
+                currentStreak = 1;
+                lastPlayedDate = today;
+                streakUpdateInfoDiv.style.display = 'block';
+            } else {
+                const lastPlayed = new Date(lastPlayedDate);
+                lastPlayed.setHours(0, 0, 0, 0); // Normalize to start of day
+                
+                // Calculate difference in days
+                const timeDiff = today.getTime() - lastPlayed.getTime();
+                const dayDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+                
+                if (dayDiff === 0) {
+                    // Already played today, streak stays the same
+                    // Just hide the streak update info
+                    streakUpdateInfoDiv.style.display = 'none';
+                } else if (dayDiff === 1) {
+                    // Consecutive day, increment streak
+                    currentStreak += 1;
+                    lastPlayedDate = today;
+                    streakUpdateInfoDiv.style.display = 'block';
+                    
+                    // Show special celebration for milestone streaks
+                    if (currentStreak === 7 || currentStreak === 30 || currentStreak === 100) {
+                        createConfetti(); // Special celebration for milestone
+                    }
+                } else {
+                    // More than one day passed, reset streak
+                    currentStreak = 1;
+                    lastPlayedDate = today;
+                    streakUpdateInfoDiv.style.display = 'block';
+                }
+            }
+            
+            // Update UI and save
+            updateStreakDisplay();
+            saveStreakData();
+        }
+        
+        // Start the quiz
+        function startQuiz() {
+            // Reset game state
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            wrongAnswers = 0;
+            totalScore = 0;
+            mistakes = [];
+            
+            // Get filtered elements based on difficulty
+            let filteredElements = elements;
+            if (selectedDifficulty === 'easy') {
+                filteredElements = elements.filter(element => element.number <= 30);
+            } else if (selectedDifficulty === 'medium') {
+                filteredElements = elements.filter(element => element.number <= 54);
+            }
+            
+            // Generate questions based on selected mode
+            questions = generateQuestions(filteredElements);
+            
+            // Switch to game area
+            setupDiv.style.display = 'none';
+            gameAreaDiv.style.display = 'block';
+            resultsAreaDiv.style.display = 'none';
+            
+            // Display first question
+            displayCurrentQuestion();
+            
+            // Update statistics
+            updateStats();
+        }
+        
+        // Generate quiz questions
+        function generateQuestions(elementsList) {
+            // Create a copy and shuffle
+            const shuffled = shuffleArray([...elementsList]);
+            
+            // Limit to 15-20 questions (randomly choose between 15 and 20)
+            const questionCount = Math.min(shuffled.length, Math.floor(Math.random() * 6) + 15);
+            
+            return shuffled.slice(0, questionCount);
+        }
+        
+        // Shuffle array (Fisher-Yates algorithm)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Display current question
+        function displayCurrentQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const currentElement = questions[currentQuestionIndex];
+                
+                // Reset state for the new question
+                answerInput.value = '';
+                feedbackDiv.textContent = '';
+                feedbackDiv.className = 'feedback';
+                isSecondChance = false;
+                hintUsed = false;
+                hintContainer.classList.remove('visible');
+                hintText.textContent = '';
+                hintCategory.textContent = '';
+                
+                // Configure display based on selected mode
+                if (selectedMode === 'symbolToName') {
+                    // Create element card with symbol
+                    questionDisplay.innerHTML = `
+                        <div class="element-card">
+                            <div class="element-number">${currentElement.number}</div>
+                            <div class="element-symbol">${currentElement.symbol}</div>
+                        </div>
+                        <p>What is the name of this element?</p>
+                    `;
+                } else {
+                    // Show element name
+                    questionDisplay.innerHTML = `
+                        <div class="element-display">${currentElement.name}</div>
+                        <p>What is the symbol for this element?</p>
+                    `;
+                }
+                
+                // Show answer button, hide next button
+                answerBtn.style.display = 'inline-block';
+                nextBtn.style.display = 'none';
+                hintBtn.style.display = 'inline-block';
+                
+                // Reset character face
+                characterFace.className = 'character thinking';
+                
+                // Focus on input field only if on desktop
+                if (window.innerWidth > 768 && 
+                    !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    answerInput.focus();
+                }
+                
+                updateStats();
+            } else {
+                showResults();
+            }
+        }
+        
+        // Show hint
+        function showHint() {
+            hintUsed = true;
+            const currentElement = questions[currentQuestionIndex];
+            
+            hintText.textContent = currentElement.description;
+            hintCategory.textContent = `Category: ${currentElement.category}`;
+            hintContainer.classList.add('visible');
+            
+            // Hide hint button after it's used
+            hintBtn.style.display = 'none';
+        }
+        
+        // Check answer
+        function checkAnswer() {
+            const userAnswer = answerInput.value.trim();
+            
+            if (!userAnswer) {
+                feedbackDiv.textContent = 'Please enter an answer!';
+                feedbackDiv.className = 'feedback wrong';
+                return;
+            }
+            
+            const currentElement = questions[currentQuestionIndex];
+            let correctAnswer, userFormattedAnswer;
+            let isCorrect = false;
+            let usedSoundex = false;
+            
+            if (selectedMode === 'symbolToName') {
+                correctAnswer = currentElement.name.toLowerCase();
+                userFormattedAnswer = userAnswer.toLowerCase();
+                
+                // Check exact match first
+                if (userFormattedAnswer === correctAnswer) {
+                    isCorrect = true;
+                } else {
+                    // Try with Soundex for name spelling tolerance
+                    const correctSoundex = soundex(correctAnswer);
+                    const userSoundex = soundex(userFormattedAnswer);
+                    
+                    // If Soundex codes match, count as correct but note that Soundex was used
+                    if (correctSoundex === userSoundex) {
+                        isCorrect = true;
+                        usedSoundex = true;
+                    }
+                }
+            } else {
+                // For symbols, we require exact match (case insensitive)
+                correctAnswer = currentElement.symbol.toLowerCase();
+                userFormattedAnswer = userAnswer.toLowerCase();
+                
+                if (userFormattedAnswer === correctAnswer) {
+                    isCorrect = true;
+                }
+            }
+            
+            if (isCorrect) {
+                // Correct answer
+                let points = 0;
+                
+                if (hintUsed) {
+                    // If hint was used, award 2 points
+                    points = 2;
+                    feedbackDiv.textContent = "Correct with hint! +2 points";
+                } else if (usedSoundex) {
+                    // For spelling close match with Soundex
+                    if (!isSecondChance) {
+                        points = 4; // Slightly less points for Soundex match on first try
+                        feedbackDiv.textContent = `Almost perfect spelling! The correct spelling is "${currentElement.name}". +4 points`;
+                    } else {
+                        points = 2; // Less points for Soundex match on second try
+                        feedbackDiv.textContent = `Close enough! The correct spelling is "${currentElement.name}". +2 points`;
+                    }
+                } else if (!isSecondChance) {
+                    // Exact match on first try without hint
+                    points = 5;
+                    feedbackDiv.textContent = getRandomMessage(correctMessages);
+                } else {
+                    // Exact match on second try without hint
+                    points = 3;
+                    feedbackDiv.textContent = "Correct on second try! +3 points";
+                }
+                
+                feedbackDiv.className = 'feedback correct';
+                correctAnswers++;
+                totalScore += points;
+                showPointAnimation(points);
+                characterFace.className = 'character happy';
+                
+                // Show confetti for 5-point answers
+                if (points === 5) {
+                    createConfetti();
+                }
+            } else if (!isSecondChance) {
+                // First wrong attempt - give a second chance
+                isSecondChance = true;
+                feedbackDiv.textContent = getRandomMessage(secondChanceMessages);
+                feedbackDiv.className = 'feedback second-chance';
+                characterFace.className = 'character thinking';
+                
+                // Add to mistakes list for later practice
+                if (!mistakes.includes(currentElement)) {
+                    mistakes.push(currentElement);
+                }
+                
+                // Clear the input and focus
+                answerInput.value = '';
+                answerInput.focus();
+                return;
+            } else {
+                // Second wrong attempt
+                feedbackDiv.textContent = `The correct answer is "${selectedMode === 'symbolToName' ? currentElement.name : currentElement.symbol}"`;
+                feedbackDiv.className = 'feedback wrong';
+                wrongAnswers++;
+                characterFace.className = 'character sad';
+                
+                // Make sure it's in the mistakes array
+                if (!mistakes.includes(currentElement)) {
+                    mistakes.push(currentElement);
+                }
+            }
+            
+            // Show next button, hide answer button
+            answerBtn.style.display = 'none';
+            nextBtn.style.display = 'inline-block';
+            hintBtn.style.display = 'none';
+            
+            updateStats();
+        }
+        
+        // Show point animation
+        function showPointAnimation(points) {
+            scoreAnimation.textContent = `+${points}`;
+            scoreAnimation.style.color = points >= 5 ? '#4caf50' : (points >= 3 ? '#ffc107' : '#2196f3');
+            
+            // Position near the score counter
+            const scoreRect = scoreCountSpan.getBoundingClientRect();
+            scoreAnimation.style.top = `${scoreRect.top - 30}px`;
+            scoreAnimation.style.left = `${scoreRect.left + scoreRect.width / 2}px`;
+            
+            // Show and animate
+            scoreAnimation.style.opacity = '1';
+            scoreAnimation.style.transform = 'translateY(-20px)';
+            
+            // Hide after animation
+            setTimeout(() => {
+                scoreAnimation.style.opacity = '0';
+                scoreAnimation.style.transform = 'translateY(-40px)';
+            }, 1000);
+        }
+        
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#f44336', '#2196f3', '#ffeb3b', '#4caf50', '#9c27b0'];
+            const container = document.body;
+            
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(confetti);
+                
+                // Animate
+                setTimeout(() => {
+                    confetti.style.opacity = '1';
+                    confetti.style.top = `${50 + Math.random() * 20}vh`;
+                    confetti.style.left = `${parseFloat(confetti.style.left) + (Math.random() * 20 - 10)}vw`;
+                    
+                    // Remove after animation
+                    setTimeout(() => {
+                        confetti.style.opacity = '0';
+                        setTimeout(() => {
+                            container.removeChild(confetti);
+                        }, 1000);
+                    }, 1000 + Math.random() * 1000);
+                }, 10);
+            }
+        }
+        
+        // Move to next question
+        function nextQuestion() {
+            currentQuestionIndex++;
+            displayCurrentQuestion();
+        }
+        
+        // Update statistics display
+        function updateStats() {
+            scoreCountSpan.textContent = totalScore;
+            correctCountSpan.textContent = correctAnswers;
+            wrongCountSpan.textContent = wrongAnswers;
+            questionCountSpan.textContent = `${currentQuestionIndex + 1}/${questions.length}`;
+            currentStreakSpan.textContent = currentStreak;
+        }
+        
+        // Show results screen
+        function showResults() {
+            // Update streak
+            updateStreak();
+            
+            // Update display
+            gameAreaDiv.style.display = 'none';
+            resultsAreaDiv.style.display = 'block';
+            
+            finalScoreSpan.textContent = totalScore;
+            finalCorrectSpan.textContent = correctAnswers;
+            finalWrongSpan.textContent = wrongAnswers;
+            finalStreakSpan.textContent = currentStreak;
+            
+            const total = correctAnswers + wrongAnswers;
+            const scorePercent = total === 0 ? 0 : Math.round((correctAnswers / total) * 100);
+            scorePercentSpan.textContent = `${scorePercent}%`;
+            
+            // Show mistakes section if there are mistakes
+            if (mistakes.length > 0) {
+                mistakesSection.style.display = 'block';
+                
+                // Clear and repopulate mistakes list
+                mistakesList.innerHTML = '';
+                mistakes.forEach(mistake => {
+                    const mistakeItem = document.createElement('div');
+                    mistakeItem.className = 'mistake-item';
+                    mistakeItem.textContent = `${mistake.symbol} - ${mistake.name} (${mistake.category})`;
+                    mistakesList.appendChild(mistakeItem);
+                });
+            } else {
+                mistakesSection.style.display = 'none';
+            }
+        }
+        
+        // Get random message from array
+        function getRandomMessage(messages) {
+            return messages[Math.floor(Math.random() * messages.length)];
+        }
+        
+        // Restart the game
+        function restart() {
+            setupDiv.style.display = 'block';
+            gameAreaDiv.style.display = 'none';
+            resultsAreaDiv.style.display = 'none';
+        }
+        
+        // Set up virtual keyboard for mobile
+        function setupVirtualKeyboard() {
+            // Clear the existing keyboard
+            virtualKeyboard.innerHTML = '';
+            
+            // First row of keys - Q to P
+            const row1 = 'qwertyuiop'.split('');
+            // Second row of keys - A to L
+            const row2 = 'asdfghjkl'.split('');
+            // Third row of keys - Z to M
+            const row3 = 'zxcvbnm'.split('');
+            
+            // Create first row
+            const keyRow1 = document.createElement('div');
+            keyRow1.className = 'key-row';
+            row1.forEach(key => {
+                const keyButton = createKey(key);
+                keyRow1.appendChild(keyButton);
+            });
+            virtualKeyboard.appendChild(keyRow1);
+            
+            // Create second row
+            const keyRow2 = document.createElement('div');
+            keyRow2.className = 'key-row';
+            row2.forEach(key => {
+                const keyButton = createKey(key);
+                keyRow2.appendChild(keyButton);
+            });
+            virtualKeyboard.appendChild(keyRow2);
+            
+            // Create third row
+            const keyRow3 = document.createElement('div');
+            keyRow3.className = 'key-row';
+            row3.forEach(key => {
+                const keyButton = createKey(key);
+                keyRow3.appendChild(keyButton);
+            });
+            virtualKeyboard.appendChild(keyRow3);
+            
+            // Create fourth row with special keys
+            const keyRow4 = document.createElement('div');
+            keyRow4.className = 'key-row';
+            
+            // Clear key
+            const clearKey = createKey('clear', 'C');
+            clearKey.classList.add('key-clear');
+            keyRow4.appendChild(clearKey);
+            
+            // Space key
+            const spaceKey = createKey('space', 'Space');
+            spaceKey.classList.add('key-space');
+            keyRow4.appendChild(spaceKey);
+            
+            // Backspace key
+            const backspaceKey = createKey('backspace', '⌫');
+            backspaceKey.classList.add('key-backspace');
+            keyRow4.appendChild(backspaceKey);
+            
+            virtualKeyboard.appendChild(keyRow4);
+            
+            // Make answer input handle clicks but not focus
+            answerInput.addEventListener('click', function(e) {
+                // Don't focus or show keyboard
+                e.preventDefault();
+            });
+        }
+        
+        // Create a key for the virtual keyboard
+        function createKey(value, label) {
+            const keyButton = document.createElement('button');
+            keyButton.className = 'key';
+            keyButton.dataset.value = value;
+            keyButton.textContent = label || value.toUpperCase();
+            keyButton.addEventListener('click', function() {
+                handleVirtualKeyInput(this.dataset.value);
+            });
+            return keyButton;
+        }
+        
+        // Handle virtual keyboard input
+        function handleVirtualKeyInput(value) {
+            if (answerBtn.style.display === 'none') {
+                return; // Don't accept input between questions
+            }
+            
+            let currentValue = answerInput.value;
+            
+            if (value === 'clear') {
+                currentValue = '';
+            } else if (value === 'backspace') {
+                currentValue = currentValue.slice(0, -1);
+            } else if (value === 'space') {
+                currentValue += ' ';
+            } else {
+                // Only append if it's not too long
+                if (currentValue.length < 20) {
+                    currentValue += value;
+                }
+            }
+            
+            // Update the input field
+            answerInput.value = currentValue;
+        }
+        
+        // Handle enter key in the answer input
+        function handleEnterKey(event) {
+            // Only proceed if the key pressed is Enter
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                // Check which button should be pressed
+                if (answerBtn.style.display !== 'none') {
+                    // Simulate a visual click on the answer button
+                    answerBtn.classList.add('active-button');
+                    setTimeout(() => {
+                        answerBtn.classList.remove('active-button');
+                        checkAnswer();
+                    }, 150);
+                    event.preventDefault(); // Prevent default Enter behavior
+                } else if (nextBtn.style.display !== 'none') {
+                    // Simulate a visual click on the next button
+                    nextBtn.classList.add('active-button');
+                    setTimeout(() => {
+                        nextBtn.classList.remove('active-button');
+                        nextQuestion();
+                    }, 150);
+                    event.preventDefault(); // Prevent default Enter behavior
+                }
+            }
+        }
+        
+        // Check if device is mobile
+        function checkMobileDevice() {
+            const isMobile = window.innerWidth <= 768 || 
+                            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            // Remove any existing event listeners to avoid duplicates
+            document.removeEventListener('keypress', handleEnterKey);
+            document.removeEventListener('keydown', handleEnterKey);
+            answerInput.removeEventListener('keypress', handleEnterKey);
+            answerInput.removeEventListener('keydown', handleEnterKey);
+            
+            if (isMobile) {
+                virtualKeyboard.style.display = 'flex';
+                // Make input readonly to prevent mobile keyboard
+                answerInput.setAttribute('readonly', 'readonly');
+            } else {
+                virtualKeyboard.style.display = 'none';
+                // For desktop, enable keyboard input
+                answerInput.removeAttribute('readonly');
+                
+                // Focus on input
+                answerInput.focus();
+            }
+            
+            // Add Enter key event listeners - works on both mobile and desktop
+            document.addEventListener('keypress', handleEnterKey);
+            document.addEventListener('keydown', handleEnterKey); // For some browsers/devices
+            
+            // Also add directly to input for better accessibility
+            answerInput.addEventListener('keypress', handleEnterKey);
+            answerInput.addEventListener('keydown', handleEnterKey); // For some browsers/devices
+        }
+        
+        // Start fetching elements data when the page loads
+        window.addEventListener('load', fetchElements);
+    </script>
+</body>
+</html>
