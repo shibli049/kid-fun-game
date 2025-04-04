@@ -330,6 +330,38 @@
             text-align: center;
         }
         
+        /* Radio button styling for multiplier selection */
+        .multiplier-selection {
+            margin: 20px auto;
+            text-align: center;
+        }
+        
+        .multiplier-option {
+            display: inline-block;
+            margin: 0 10px;
+        }
+        
+        .multiplier-option input[type="radio"] {
+            display: none;
+        }
+        
+        .multiplier-option label {
+            display: inline-block;
+            background-color: #e3f2fd;
+            color: var(--primary-color);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .multiplier-option input[type="radio"]:checked + label {
+            background-color: var(--primary-color);
+            color: white;
+            transform: scale(1.05);
+        }
+        
         @media (max-width: 600px) {
             /* Make title smaller on mobile */
             h1 {
@@ -449,6 +481,12 @@
                 font-size: 14px;
                 border-left-width: 3px;
             }
+            
+            /* Smaller multiplier selection on mobile */
+            .multiplier-option label {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -462,6 +500,19 @@
             <div class="number-selection">
                 <!-- Buttons 1-12 will be added here by JavaScript -->
             </div>
+            
+            <div class="multiplier-selection">
+                <h3>Multiply up to:</h3>
+                <div class="multiplier-option">
+                    <input type="radio" id="multiplyUpTo10" name="multiplyUpTo" value="10" checked>
+                    <label for="multiplyUpTo10">Up to 10</label>
+                </div>
+                <div class="multiplier-option">
+                    <input type="radio" id="multiplyUpTo12" name="multiplyUpTo" value="12">
+                    <label for="multiplyUpTo12">Up to 12</label>
+                </div>
+            </div>
+            
             <div style="text-align: center;">
                 <button class="start-btn" id="startBtn" disabled>Start Game</button>
             </div>
@@ -602,6 +653,7 @@
         let practicingMistakes = false;
         let isSecondChance = false;
         let mistakeSuccessBonus = {};
+        let multiplicationLimit = 10; // Default to 10
         
         // Encouraging messages
         const correctMessages = [
@@ -652,7 +704,7 @@
             const allQuestions = [];
             
             for (const num of selectedNumbers) {
-                for (let i = 2; i <= 12; i++) {
+                for (let i = 2; i <= multiplicationLimit; i++) {
                     allQuestions.push({
                         factor1: num,
                         factor2: i,
@@ -686,6 +738,10 @@
         
         // Start the game
         function startGame() {
+            // Get the selected multiplication limit
+            const selectedMultiplierOption = document.querySelector('input[name="multiplyUpTo"]:checked');
+            multiplicationLimit = parseInt(selectedMultiplierOption.value);
+            
             practicingMistakes = false;
             questions = generateQuestions();
             currentQuestionIndex = 0;
