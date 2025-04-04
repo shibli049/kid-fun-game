@@ -488,6 +488,13 @@
                 font-size: 14px;
             }
         }
+        
+        /* Add styling for active button state */
+        .active-button {
+            transform: translateY(3px) !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+            transition: all 0.1s !important;
+        }
     </style>
 </head>
 <body>
@@ -1109,11 +1116,25 @@
         
         // Handle enter key in the answer input
         function handleEnterKey(event) {
-            if (event.key === 'Enter') {
+            // Only proceed if the key pressed is Enter
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                // Check which button should be pressed
                 if (answerBtn.style.display !== 'none') {
-                    checkAnswer();
+                    // Simulate a visual click on the answer button
+                    answerBtn.classList.add('active-button');
+                    setTimeout(() => {
+                        answerBtn.classList.remove('active-button');
+                        checkAnswer();
+                    }, 150);
+                    event.preventDefault(); // Prevent default Enter behavior
                 } else if (nextBtn.style.display !== 'none') {
-                    nextQuestion();
+                    // Simulate a visual click on the next button
+                    nextBtn.classList.add('active-button');
+                    setTimeout(() => {
+                        nextBtn.classList.remove('active-button');
+                        nextQuestion();
+                    }, 150);
+                    event.preventDefault(); // Prevent default Enter behavior
                 }
             }
         }
@@ -1129,6 +1150,9 @@
             if (value === 'clear') {
                 currentValue = '';
             } else if (value === 'backspace') {
+                currentValue = currentValue.slice(0, -1);
+            } else {
+                // Only append if it's a reasonable length
                 if (currentValue.length < 4) {
                     currentValue += value;
                 }
@@ -1160,14 +1184,60 @@
             const isMobile = window.innerWidth <= 768 || 
                              /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
+            // Remove any existing event listeners to avoid duplicates
+            document.removeEventListener('keypress', handleEnterKey);
+            document.removeEventListener('keydown', handleEnterKey);
+            answerInput.removeEventListener('keypress', handleEnterKey);
+            answerInput.removeEventListener('keydown', handleEnterKey);
+            
             if (isMobile) {
                 virtualKeyboard.style.display = 'flex';
                 // Make input readonly to prevent mobile keyboard
                 answerInput.setAttribute('readonly', 'readonly');
             } else {
                 virtualKeyboard.style.display = 'none';
-                // For desktop, handle keyboard input
-                answerInput.addEventListener('keypress', handleEnterKey);
+                // For desktop, enable keyboard input
+                answerInput.removeAttribute('readonly');
+                
+                // Handle keyboard input filtering
+                answerInput.addEventListener('keydown', handleKeyboardInput);
+                
+                // Focus on the input field when a new question is displayed
+                answerInput.focus();
+            }
+            
+            // Add Enter key event listeners - works on both mobile and desktop
+            document.addEventListener('keypress', handleEnterKey);
+            document.addEventListener('keydown', handleEnterKey); // For some browsers/devices
+            
+            // Also add directly to input for better accessibility
+            answerInput.addEventListener('keypress', handleEnterKey);
+            answerInput.addEventListener('keydown', handleEnterKey); // For some browsers/devices
+        }
+        
+        // Handle keyboard input for desktop users
+        function handleKeyboardInput(event) {
+            // Skip if we're between questions (when check answer button is hidden)
+            if (answerBtn.style.display === 'none') {
+                return;
+            }
+            
+            // Allow only numbers, backspace, delete, and arrow keys
+            if (!/^[0-9]$/.test(event.key) && 
+                event.key !== 'Backspace' && 
+                event.key !== 'Delete' && 
+                event.key !== 'ArrowLeft' && 
+                event.key !== 'ArrowRight' && 
+                event.key !== 'Tab') {
+                // Also allow ctrl+A, ctrl+C, ctrl+V, ctrl+X
+                if (!(event.ctrlKey && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase()))) {
+                    event.preventDefault();
+                }
+            }
+            
+            // Ensure input doesn't get too long
+            if (/^[0-9]$/.test(event.key) && answerInput.value.length >= 4) {
+                event.preventDefault();
             }
         }
         
@@ -1196,6 +1266,9 @@
             
             // Handle window resize
             window.addEventListener('resize', checkMobileDevice);
+            
+            // Remove document-level keypress listener - we'll add it in checkMobileDevice
+            document.removeEventListener('keypress', handleEnterKey);
         }
         
         // Start the initialization when the page loads
