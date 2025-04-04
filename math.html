@@ -362,6 +362,39 @@
             transform: scale(1.05);
         }
         
+        /* Streak badge styling */
+        .streak-badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            animation: streakPulse 2s infinite;
+        }
+        
+        @keyframes streakPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .streak-badge .fire-icon {
+            color: #ff7700;
+            font-size: 1.2em;
+            margin-right: 3px;
+        }
+        
+        .streak-info {
+            background-color: #ffac33;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            margin: 0 auto 10px;
+            width: fit-content;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
         @media (max-width: 600px) {
             /* Make title smaller on mobile */
             h1 {
@@ -487,6 +520,17 @@
                 padding: 6px 12px;
                 font-size: 14px;
             }
+            
+            /* Smaller streak info on mobile */
+            .streak-info {
+                padding: 3px 8px;
+                font-size: 12px;
+                margin-bottom: 5px;
+            }
+            
+            .streak-badge .fire-icon {
+                font-size: 1em;
+            }
         }
         
         /* Add styling for active button state */
@@ -520,6 +564,11 @@
                 </div>
             </div>
             
+            <div id="streakInfo" class="streak-info" style="display: none;">
+                <span class="streak-badge"><span class="fire-icon">🔥</span> <span id="streakCount">0</span> day streak!</span>
+                <div style="font-size: 0.8em; margin-top: 3px;">Come back tomorrow to continue your streak!</div>
+            </div>
+            
             <div style="text-align: center;">
                 <button class="start-btn" id="startBtn" disabled>Start Game</button>
             </div>
@@ -544,6 +593,10 @@
                 <div class="stat-item">
                     <div class="stat-value" id="questionCount">0/0</div>
                     <div class="stat-label">Question</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value"><span class="fire-icon">🔥</span><span id="currentStreak">0</span></div>
+                    <div class="stat-label">Streak</div>
                 </div>
             </div>
             
@@ -587,6 +640,11 @@
             <div class="character happy"></div>
             <h2>Great job!</h2>
             
+            <div id="streakUpdateInfo" class="streak-info" style="display: none;">
+                <span class="streak-badge"><span class="fire-icon">🔥</span> <span id="updatedStreakCount">0</span> day streak!</span>
+                <div style="font-size: 0.8em; margin-top: 3px;">Come back tomorrow to continue your streak!</div>
+            </div>
+            
             <div class="stats">
                 <div class="stat-item">
                     <div class="stat-value" id="finalScore">0</div>
@@ -603,6 +661,10 @@
                 <div class="stat-item">
                     <div class="stat-value" id="scorePercent">0%</div>
                     <div class="stat-label">Score</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value"><span class="fire-icon">🔥</span><span id="finalStreak">0</span></div>
+                    <div class="stat-label">Streak</div>
                 </div>
             </div>
             
@@ -648,6 +710,12 @@
         const scoreAnimation = document.getElementById('scoreAnimation');
         const virtualKeyboard = document.getElementById('virtualKeyboard');
         const practiceLabel = document.getElementById('practiceLabel');
+        const streakInfoDiv = document.getElementById('streakInfo');
+        const streakCountSpan = document.getElementById('streakCount');
+        const currentStreakSpan = document.getElementById('currentStreak');
+        const updatedStreakCountSpan = document.getElementById('updatedStreakCount');
+        const finalStreakSpan = document.getElementById('finalStreak');
+        const streakUpdateInfoDiv = document.getElementById('streakUpdateInfo');
         
         // Game state variables
         let selectedNumbers = [];
@@ -661,10 +729,14 @@
         let isSecondChance = false;
         let mistakeSuccessBonus = {};
         let multiplicationLimit = 10; // Default to 10
+        let currentStreak = 0;
+        let lastPlayedDate = null;
         
         // Local storage keys
         const STORAGE_KEY_NUMBERS = 'multiplicationGame_selectedNumbers';
         const STORAGE_KEY_LIMIT = 'multiplicationGame_multiplicationLimit';
+        const STORAGE_KEY_STREAK = 'multiplicationGame_streak';
+        const STORAGE_KEY_LAST_PLAYED = 'multiplicationGame_lastPlayed';
         
         // Encouraging messages
         const correctMessages = [
@@ -771,6 +843,99 @@
                 // Reset to default in case of error
                 multiplicationLimit = 10;
             }
+        }
+        
+        // Load streak data from localStorage
+        function loadStreakData() {
+            try {
+                const savedStreak = localStorage.getItem(STORAGE_KEY_STREAK);
+                const savedLastPlayed = localStorage.getItem(STORAGE_KEY_LAST_PLAYED);
+                
+                if (savedStreak) {
+                    currentStreak = parseInt(savedStreak);
+                }
+                
+                if (savedLastPlayed) {
+                    lastPlayedDate = new Date(savedLastPlayed);
+                }
+                
+                // Update UI with streak info
+                updateStreakDisplay();
+            } catch (e) {
+                console.error('Error loading streak data:', e);
+                // Reset in case of error
+                currentStreak = 0;
+                lastPlayedDate = null;
+            }
+        }
+        
+        // Save streak data to localStorage
+        function saveStreakData() {
+            localStorage.setItem(STORAGE_KEY_STREAK, currentStreak.toString());
+            if (lastPlayedDate) {
+                localStorage.setItem(STORAGE_KEY_LAST_PLAYED, lastPlayedDate.toISOString());
+            }
+        }
+        
+        // Update the streak displays in the UI
+        function updateStreakDisplay() {
+            // Update all streak displays
+            streakCountSpan.textContent = currentStreak;
+            currentStreakSpan.textContent = currentStreak;
+            updatedStreakCountSpan.textContent = currentStreak;
+            finalStreakSpan.textContent = currentStreak;
+            
+            // Show streak info if streak exists
+            if (currentStreak > 0) {
+                streakInfoDiv.style.display = 'block';
+            } else {
+                streakInfoDiv.style.display = 'none';
+            }
+        }
+        
+        // Check and update streak when game is completed
+        function updateStreak() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize to start of day
+            
+            if (!lastPlayedDate) {
+                // First time playing
+                currentStreak = 1;
+                lastPlayedDate = today;
+                streakUpdateInfoDiv.style.display = 'block';
+            } else {
+                const lastPlayed = new Date(lastPlayedDate);
+                lastPlayed.setHours(0, 0, 0, 0); // Normalize to start of day
+                
+                // Calculate difference in days
+                const timeDiff = today.getTime() - lastPlayed.getTime();
+                const dayDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+                
+                if (dayDiff === 0) {
+                    // Already played today, streak stays the same
+                    // Just hide the streak update info
+                    streakUpdateInfoDiv.style.display = 'none';
+                } else if (dayDiff === 1) {
+                    // Consecutive day, increment streak
+                    currentStreak += 1;
+                    lastPlayedDate = today;
+                    streakUpdateInfoDiv.style.display = 'block';
+                    
+                    // Show special celebration for milestone streaks
+                    if (currentStreak === 7 || currentStreak === 30 || currentStreak === 100) {
+                        createConfetti(); // Special celebration for milestone
+                    }
+                } else {
+                    // More than one day passed, reset streak
+                    currentStreak = 1;
+                    lastPlayedDate = today;
+                    streakUpdateInfoDiv.style.display = 'block';
+                }
+            }
+            
+            // Update UI and save
+            updateStreakDisplay();
+            saveStreakData();
         }
         
         // Generate questions based on selected numbers
@@ -1064,6 +1229,11 @@
                 return;
             }
             
+            // Update streak when game is completed (only first time, not after practice)
+            if (!practicingMistakes) {
+                updateStreak();
+            }
+            
             // If no mistakes or already practiced, show final results
             gameAreaDiv.style.display = 'none';
             resultsAreaDiv.style.display = 'block';
@@ -1071,6 +1241,7 @@
             finalScoreSpan.textContent = totalScore;
             finalCorrectSpan.textContent = correctAnswers;
             finalWrongSpan.textContent = wrongAnswers;
+            finalStreakSpan.textContent = currentStreak;
             
             const total = correctAnswers + wrongAnswers;
             const scorePercent = total === 0 ? 0 : Math.round((correctAnswers / total) * 100);
@@ -1269,6 +1440,9 @@
             
             // Remove document-level keypress listener - we'll add it in checkMobileDevice
             document.removeEventListener('keypress', handleEnterKey);
+            
+            // Load streak data
+            loadStreakData();
         }
         
         // Start the initialization when the page loads
