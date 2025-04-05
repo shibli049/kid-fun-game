@@ -946,6 +946,31 @@
             
             return result;
         }
+
+        // Calculate Levenshtein distance between two strings
+        function levenshteinDistance(str1, str2) {
+            const m = str1.length;
+            const n = str2.length;
+            const dp = Array(m + 1).fill().map(() => Array(n + 1).fill(0));
+
+            for (let i = 0; i <= m; i++) dp[i][0] = i;
+            for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+            for (let i = 1; i <= m; i++) {
+                for (let j = 1; j <= n; j++) {
+                    if (str1[i - 1] === str2[j - 1]) {
+                        dp[i][j] = dp[i - 1][j - 1];
+                    } else {
+                        dp[i][j] = Math.min(
+                            dp[i - 1][j - 1], // substitution
+                            dp[i - 1][j],     // deletion
+                            dp[i][j - 1]      // insertion
+                        ) + 1;
+                    }
+                }
+            }
+            return dp[m][n];
+        }
         
         // Fetch elements data
         async function fetchElements() {
@@ -1293,8 +1318,8 @@
                     const correctSoundex = soundex(correctAnswer);
                     const userSoundex = soundex(userFormattedAnswer);
                     
-                    // If Soundex codes match, count as correct but note that Soundex was used
-                    if (correctSoundex === userSoundex) {
+                    // If Soundex codes match or Levenshtein distance is <= 2
+                    if (correctSoundex === userSoundex || levenshteinDistance(correctAnswer, userFormattedAnswer) <= 2) {
                         isCorrect = true;
                         usedSoundex = true;
                     }
