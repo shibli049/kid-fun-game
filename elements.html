@@ -1313,7 +1313,7 @@
                 // Check exact match first
                 if (userFormattedAnswer === correctAnswer) {
                     isCorrect = true;
-                } else {
+                } else if (correctAnswer.length > 4) {
                     // Try with Soundex for name spelling tolerance
                     const correctSoundex = soundex(correctAnswer);
                     const userSoundex = soundex(userFormattedAnswer);
