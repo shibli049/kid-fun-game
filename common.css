@@ -1,0 +1,38 @@
+/* Common styles for the home button */
+.home-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.home-btn:hover {
+    opacity: 0.9;
+}
+
+/* Home button text - will be hidden on mobile */
+.home-btn-text {
+    display: inline;
+}
+
+/* Media query for mobile screens */
+@media (max-width: 768px) {
+    .home-btn {
+        padding: 8px;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        justify-content: center;
+    }
+    
+    .home-btn-text {
+        display: none; /* Hide text on mobile */
+    }
+}
