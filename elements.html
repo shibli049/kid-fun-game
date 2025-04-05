@@ -434,7 +434,7 @@
         
         .difficulty-option {
             display: inline-block;
-            margin: 0 10px;
+            margin: 10px 15px;
         }
         
         .difficulty-option input[type="radio"] {
@@ -1153,17 +1153,20 @@
             wrongAnswers = 0;
             totalScore = 0;
             mistakes = [];
+            let numberOfQuestions = Math.floor(Math.random() * 3) + 15; // Randomly choose between 15 and 18
             
             // Get filtered elements based on difficulty
             let filteredElements = elements;
             if (selectedDifficulty === 'easy') {
                 filteredElements = elements.filter(element => element.number <= 30);
+                numberOfQuestions = 10;
             } else if (selectedDifficulty === 'medium') {
                 filteredElements = elements.filter(element => element.number <= 54);
+                numberOfQuestions = Math.floor(Math.random() * 3) + 10; // Randomly choose between 10 and 12
             }
             
             // Generate questions based on selected mode
-            questions = generateQuestions(filteredElements);
+            questions = generateQuestions(filteredElements, numberOfQuestions);
             
             // Switch to game area
             setupDiv.style.display = 'none';
@@ -1178,12 +1181,12 @@
         }
         
         // Generate quiz questions
-        function generateQuestions(elementsList) {
+        function generateQuestions(elementsList, numberOfQuestions = 20) {
             // Create a copy and shuffle
             const shuffled = shuffleArray([...elementsList]);
             
-            // Limit to 15-20 questions (randomly choose between 15 and 20)
-            const questionCount = Math.min(shuffled.length, Math.floor(Math.random() * 6) + 15);
+            
+            const questionCount = Math.min(shuffled.length, numberOfQuestions);
             
             return shuffled.slice(0, questionCount);
         }
