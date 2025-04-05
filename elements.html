@@ -1313,13 +1313,13 @@
                 // Check exact match first
                 if (userFormattedAnswer === correctAnswer) {
                     isCorrect = true;
-                } else if (correctAnswer.length > 4) {
+                } else {
                     // Try with Soundex for name spelling tolerance
                     const correctSoundex = soundex(correctAnswer);
                     const userSoundex = soundex(userFormattedAnswer);
                     
                     // If Soundex codes match or Levenshtein distance is <= 2
-                    if (correctSoundex === userSoundex || levenshteinDistance(correctAnswer, userFormattedAnswer) <= 2) {
+                    if (correctSoundex === userSoundex || (correctAnswer.length > 4 && levenshteinDistance(correctAnswer, userFormattedAnswer) <= 2)) {
                         isCorrect = true;
                         usedSoundex = true;
                     }
