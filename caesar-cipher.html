@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caesar Cipher</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .toggle-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 240px;
+            height: 60px;
+            background: #f0f0f0;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .toggle-option {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.95em;
+            color: #666;
+            transition: all 0.3s ease;
+            border-radius: 25px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .toggle-option.active {
+            color: white;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            width: 50%;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 25px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            left: 5px;
+            top: 5px;
+            z-index: 1;
+        }
+
+        .toggle-switch.decrypt .toggle-slider {
+            left: calc(50% - 0px);
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .result-container {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .result-text {
+            color: #333;
+            font-size: 1.1em;
+            word-wrap: break-word;
+            line-height: 1.6;
+        }
+
+        .empty-result {
+            color: #999;
+            font-style: italic;
+        }
+
+        .info-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 10px;
+            font-size: 0.85em;
+            color: #1976d2;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .toggle-switch {
+                width: 220px;
+                height: 55px;
+            }
+
+            .toggle-slider {
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Caesar Cipher</h1>
+        <p class="subtitle">Encrypt and decrypt messages with ease</p>
+
+        <div class="toggle-container">
+            <div class="toggle-switch" id="modeToggle" onclick="toggleMode()">
+                <div class="toggle-slider"></div>
+                <div class="toggle-option" id="encryptOption">ENCRYPT</div>
+                <div class="toggle-option" id="decryptOption">DECRYPT</div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="shift">Shift Amount (1-25):</label>
+            <input type="number" id="shift" min="1" max="25" value="3" oninput="processText()">
+        </div>
+
+        <div class="input-group">
+            <label for="inputText">Enter your message:</label>
+            <textarea id="inputText" placeholder="Type your message here..." oninput="processText()"></textarea>
+        </div>
+
+        <div class="result-container">
+            <div class="result-label" id="resultLabel">Encrypted Result:</div>
+            <div class="result-text" id="result">
+                <span class="empty-result">Your result will appear here...</span>
+            </div>
+        </div>
+
+        <div class="info-box">
+            💡 <strong>Tip:</strong> The Caesar cipher shifts each letter by a fixed number of positions in the alphabet. Numbers, spaces, and special characters remain unchanged.
+        </div>
+    </div>
+
+    <script>
+        let isDecryptMode = false;
+
+        function toggleMode() {
+            const toggle = document.getElementById('modeToggle');
+            const encryptOption = document.getElementById('encryptOption');
+            const decryptOption = document.getElementById('decryptOption');
+            const resultLabel = document.getElementById('resultLabel');
+            
+            isDecryptMode = !isDecryptMode;
+            
+            if (isDecryptMode) {
+                toggle.classList.add('decrypt');
+                encryptOption.classList.remove('active');
+                decryptOption.classList.add('active');
+                resultLabel.textContent = 'Decrypted Result:';
+            } else {
+                toggle.classList.remove('decrypt');
+                encryptOption.classList.add('active');
+                decryptOption.classList.remove('active');
+                resultLabel.textContent = 'Encrypted Result:';
+            }
+            
+            processText();
+        }
+
+        // Initialize the active state
+        document.getElementById('encryptOption').classList.add('active');
+
+        function caesarCipher(text, shift, decrypt = false) {
+            if (decrypt) {
+                shift = 26 - (shift % 26);
+            }
+            
+            let result = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+                
+                if (char.match(/[a-z]/i)) {
+                    const code = text.charCodeAt(i);
+                    
+                    // Uppercase letters
+                    if (code >= 65 && code <= 90) {
+                        char = String.fromCharCode(((code - 65 + shift) % 26) + 65);
+                    }
+                    // Lowercase letters
+                    else if (code >= 97 && code <= 122) {
+                        char = String.fromCharCode(((code - 97 + shift) % 26) + 97);
+                    }
+                }
+                
+                result += char;
+            }
+            
+            return result;
+        }
+
+        function processText() {
+            const inputText = document.getElementById('inputText').value;
+            const shift = parseInt(document.getElementById('shift').value) || 0;
+            const resultElement = document.getElementById('result');
+            
+            if (!inputText.trim()) {
+                resultElement.innerHTML = '<span class="empty-result">Your result will appear here...</span>';
+                return;
+            }
+            
+            const result = caesarCipher(inputText, shift, isDecryptMode);
+            resultElement.textContent = result;
+        }
+
+        // Initialize
+        processText();
+    </script>
+</body>
+</html>
